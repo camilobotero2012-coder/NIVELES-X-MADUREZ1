@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Puntuación - Encuesta de Madurez</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .resultado-principal {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .resultado-principal h2 {
+            border-bottom-color: rgba(255,255,255,0.3);
+            color: white;
+        }
+
+        .score-display {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .score-item {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .score-item .valor {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .score-item .label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .dimension-item {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .dimension-item h3 {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .barra-progreso {
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .barra-progreso-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+
+        .porcentaje {
+            font-size: 12px;
+            color: #666;
+            font-weight: bold;
+        }
+
+        .parametro-item {
+            font-size: 12px;
+            color: #666;
+            margin-left: 10px;
+            margin-top: 5px;
+            padding: 5px;
+            background: white;
+            border-radius: 4px;
+        }
+
+        .recomendacion {
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+        }
+
+        .recomendacion.alta {
+            background: #ffe0e0;
+            border-left-color: #ff6b6b;
+        }
+
+        .recomendacion.media {
+            background: #fff3e0;
+            border-left-color: #ffa500;
+        }
+
+        .prioridad {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .prioridad.alta {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .prioridad.media {
+            background: #ffa500;
+            color: white;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translate(0, -2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translate(0, 0);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #ffe0e0;
+            color: #c00;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .success {
+            background: #e0ffe0;
+            color: #060;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border-left: 4px solid #6b6;
+            font-size: 13px;
+        }
+
+        .json-output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .json-output code {
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab-button {
+            background: none;
+            color: #666;
+            border: none;
+            padding: 10px 15px;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .score-display {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .info-box {
+            background: #f0f4ff;
+            border: 1px solid #667eea;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .info-box strong {
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚙️ Sistema de Puntuación de Madurez</h1>
+            <p>Calculadora integral para encuesta de madurez comercial con 54 preguntas</p>
+        </header>
+
+        <div class="card" id="loading-section" class="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 15px;">Cargando estructura y calculadora...</p>
+        </div>
+
+        <div id="content-section" style="display: none;">
+            <!-- INFORMACIÓN -->
+            <div class="card">
+                <div class="info-box">
+                    <strong>✓ Sistema Validado</strong><br>
+                    Estructura de 5 dimensiones, 19 parámetros, 54 preguntas. Puntuación máxima: 5 puntos.
+                    <br><br>
+                    <strong>Escala de Respuesta:</strong> 0 (No iniciado) | 0.33 (En desarrollo) | 0.66 (Implementado) | 1 (Optimizado)
+                </div>
+                <button onclick="cargarRespuestasEjemplo()">Cargar Respuestas de Ejemplo</button>
+                <button onclick="calcularResultado()" style="margin-left: 10px;">Calcular Puntuación</button>
+            </div>
+
+            <!-- RESULTADO PRINCIPAL -->
+            <div class="card resultado-principal" id="resultado-section" style="display: none;">
+                <h2>📊 Resultado de la Evaluación</h2>
+                <div class="score-display">
+                    <div class="score-item">
+                        <div class="valor" id="score-total">0.00</div>
+                        <div class="label">Score Total / 5.0</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="valor" id="score-porcentaje">0%</div>
+                        <div class="label">Porcentaje de Madurez</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="valor" id="score-nivel">-</div>
+                        <div class="label">Nivel de Madurez</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABS DE RESULTADO -->
+            <div class="card" id="tabs-section" style="display: none;">
+                <div class="tabs">
+                    <button class="tab-button active" onclick="cambiarTab('dimensiones')">📈 Dimensiones</button>
+                    <button class="tab-button" onclick="cambiarTab('recomendaciones')">💡 Recomendaciones</button>
+                    <button class="tab-button" onclick="cambiarTab('json')">📋 JSON</button>
+                </div>
+
+                <div id="dimensiones-tab" class="tab-content active">
+                    <h3 style="margin-bottom: 15px;">Desglose por Dimensión</h3>
+                    <div id="dimensiones-contenido"></div>
+                </div>
+
+                <div id="recomendaciones-tab" class="tab-content">
+                    <h3 style="margin-bottom: 15px;">Recomendaciones Estratégicas</h3>
+                    <div id="recomendaciones-contenido"></div>
+                </div>
+
+                <div id="json-tab" class="tab-content">
+                    <h3 style="margin-bottom: 15px;">Datos JSON Completos</h3>
+                    <div class="json-output" id="json-contenido"></div>
+                </div>
+            </div>
+
+            <!-- ERRORES -->
+            <div id="error-section" style="display: none;" class="card error">
+                <strong>❌ Error:</strong> <span id="error-mensaje"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let estructura = null;
+        let calculadora = null;
+        let resultado = null;
+
+        /**
+         * CARGAR ESTRUCTURA Y VALIDAR
+         */
+        async function inicializar() {
+            try {
+                const respuesta = await fetch('estructura-encuesta.json');
+                if (!respuesta.ok) throw new Error(`HTTP ${respuesta.status}`);
+                
+                estructura = await respuesta.json();
+                calculadora = new CalculadorMaturez(estructura);
+                
+                document.getElementById('loading-section').style.display = 'none';
+                document.getElementById('content-section').style.display = 'block';
+                
+                console.log('✅ Sistema listo');
+            } catch (error) {
+                mostrarError('No se pudo cargar la estructura: ' + error.message);
+            }
+        }
+
+        /**
+         * CARGAR RESPUESTAS DE EJEMPLO
+         */
+        async function cargarRespuestasEjemplo() {
+            try {
+                const respuesta = await fetch('ejemplo-uso.js');
+                const texto = await respuesta.text();
+                
+                // Extraer objeto de respuestas
+                const match = texto.match(/const respuestasEjemplo = ({[\s\S]*?});/);
+                if (!match) throw new Error('No se encontraron respuestas de ejemplo');
+                
+                try {
+                    eval('window.respuestasTemp = ' + match[1]);
+                    window.respuestasActuales = window.respuestasTemp;
+                    mostrarExito(`Cargadas ${Object.keys(window.respuestasActuales).length} respuestas de ejemplo`);
+                } catch (e) {
+                    // Fallback: crear respuestas de ejemplo simples
+                    window.respuestasActuales = {};
+                    for (let i = 1; i <= 54; i++) {
+                        const opciones = [0.33, 0.66, 1];
+                        window.respuestasActuales[`Q${i}`] = opciones[Math.floor(Math.random() * opciones.length)];
+                    }
+                    mostrarExito(`Generadas 54 respuestas aleatorias`);
+                }
+            } catch (error) {
+                mostrarError('Error cargando respuestas: ' + error.message);
+            }
+        }
+
+        /**
+         * CALCULAR RESULTADO
+         */
+        function calcularResultado() {
+    if (!calculadora) {
+        mostrarError('Calculadora no inicializada');
+        return;
+    }
+
+    if (!window.respuestasActuales) {
+        mostrarError('Cargue respuestas primero');
+        return;
+    }
+
+    try {
+        resultado = calculadora.calcularScore(window.respuestasActuales);
+        const reporte = calculadora.generarReporte(resultado);
+
+        // ✅ Guardar en localStorage para que results.html lo pueda leer y guardar en BD
+        const sesionRaw = localStorage.getItem('sesionActiva');
+        const sesionData = sesionRaw ? JSON.parse(sesionRaw) : {};
+
+        localStorage.setItem('ultimaEvaluacion', JSON.stringify({
+            resultado: resultado,
+            reporte: reporte,
+            empresa: sesionData.companyName || 'Empresa',
+            fecha: new Date().toISOString()
+        }));
+
+        mostrarResultado();
+        document.getElementById('resultado-section').style.display = 'block';
+        document.getElementById('tabs-section').style.display = 'block';
+        document.getElementById('error-section').style.display = 'none';
+
+        // Mostrar botón para ir a resultados
+        document.getElementById('btn-ver-resultados').style.display = 'inline-block';
+
+        mostrarExito('Resultados calculados y listos para guardar');
+    } catch (error) {
+        mostrarError(error.message);
+    }
+}
+
+        /**
+         * MOSTRAR RESULTADO
+         */
+        function mostrarResultado() {
+            // Actualizar valores principales
+            document.getElementById('score-total').textContent = resultado.total.toFixed(2);
+            document.getElementById('score-porcentaje').textContent = resultado.totalPorcentaje + '%';
+            document.getElementById('score-nivel').textContent = resultado.nivelMadurez.split(' ')[0];
+
+            // Dimensiones
+            let htmlDimensiones = '';
+            resultado.dimensiones.forEach(dim => {
+                const porcentajeLleno = dim.porcentaje;
+                htmlDimensiones += `
+                    <div class="dimension-item">
+                        <h3>${dim.nombreDimension}</h3>
+                        <div class="barra-progreso">
+                            <div class="barra-progreso-fill" style="width: ${porcentajeLleno}%"></div>
+                        </div>
+                        <div class="porcentaje">${dim.score.toFixed(2)} / ${dim.scoreMaximo} (${dim.porcentaje}%)</div>
+                        <div style="margin-top: 8px;">
+                            ${dim.parametros.map(p => `
+                                <div class="parametro-item">
+                                    ${p.nombreParametro}: ${p.score.toFixed(3)} / ${p.scoreMaximo} (${p.porcentaje}%)
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('dimensiones-contenido').innerHTML = htmlDimensiones;
+
+            // Recomendaciones
+            const reporte = calculadora.generarReporte(resultado);
+            let htmlRec = '';
+            reporte.recomendaciones.forEach(rec => {
+                htmlRec += `
+                    <div class="recomendacion ${rec.prioridad.toLowerCase()}">
+                        <span class="prioridad ${rec.prioridad.toLowerCase()}">${rec.prioridad}</span>
+                        <strong>${rec.dimension}</strong><br>
+                        ${rec.accion}
+                    </div>
+                `;
+            });
+            document.getElementById('recomendaciones-contenido').innerHTML = htmlRec || '<p>Sin recomendaciones</p>';
+
+            // JSON
+            document.getElementById('json-contenido').innerHTML = 
+                '<code>' + JSON.stringify(resultado, null, 2) + '</code>';
+        }
+
+        /**
+         * CAMBIAR TAB
+         */
+        function cambiarTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tab + '-tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        /**
+         * MOSTRAR ERROR
+         */
+        function mostrarError(mensaje) {
+            document.getElementById('error-section').style.display = 'block';
+            document.getElementById('error-mensaje').textContent = mensaje;
+            console.error('❌', mensaje);
+        }
+
+        /**
+         * MOSTRAR ÉXITO
+         */
+        function mostrarExito(mensaje) {
+            const div = document.createElement('div');
+            div.className = 'success';
+            div.textContent = '✓ ' + mensaje;
+            document.querySelector('header').appendChild(div);
+            setTimeout(() => div.remove(), 3000);
+        }
+
+        // Inicializar al cargar
+        window.addEventListener('load', inicializar);
+    </script>
+
+    <!-- Incluir calculadora -->
+    <script src="calculador-madurez.js"></script>
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base de Datos - Resultados Guardados</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #f4f5f9; color: #1f2937; min-height: 100vh; padding: 20px; }
+        .container { max-width: 1120px; margin: 0 auto; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        h1 { font-size: 28px; color: #111827; }
+        .subtitulo { font-size: 14px; color: #4b5563; margin-top: 8px; }
+        .busqueda-card { background: #ffffff; border-radius: 16px; padding: 24px; box-shadow: 0 18px 50px rgba(15,23,42,0.08); margin-bottom: 24px; }
+        .busqueda-form { display: flex; gap: 12px; flex-wrap: wrap; }
+        .busqueda-form input { flex: 1; min-width: 220px; padding: 14px 16px; border: 1px solid #d1d5db; border-radius: 12px; font-size: 15px; color: #111827; background: #f9fafb; }
+        .busqueda-form button { background: #2563eb; color: white; border: none; padding: 14px 22px; border-radius: 12px; font-size: 15px; cursor: pointer; transition: transform 0.15s ease, background 0.15s ease; }
+        .busqueda-form button:hover { background: #1d4ed8; transform: translateY(-1px); }
+        .mensaje-estado { margin-top: 16px; font-size: 14px; color: #374151; }
+        .mensaje-estado.exito { color: #16a34a; }
+        .mensaje-estado.error { color: #dc2626; }
+        .tabla-wrapper { overflow-x: auto; background: white; border-radius: 16px; box-shadow: 0 12px 30px rgba(15,23,42,0.06); padding: 16px; }
+        .tabla-resultados { width: 100%; border-collapse: collapse; min-width: 720px; }
+        .tabla-resultados th, .tabla-resultados td { padding: 14px 18px; text-align: left; border-bottom: 1px solid #e5e7eb; font-size: 14px; }
+        .tabla-resultados th { background: #f8fafc; color: #111827; font-weight: 700; }
+        .tabla-resultados tbody tr { transition: background 0.2s ease, transform 0.15s ease; cursor: pointer; }
+        .tabla-resultados tbody tr:hover { background: #eff6ff; transform: translateX(2px); }
+        .tabla-resultados tbody tr td { color: #374151; }
+        .sin-datos { padding: 32px; text-align: center; color: #6b7280; font-size: 16px; }
+        .loading { padding: 32px; text-align: center; color: #4b5563; font-size: 15px; }
+        .volver-btn { background: #111827; color: #ffffff; border: none; padding: 12px 18px; border-radius: 10px; cursor: pointer; transition: background 0.15s ease, transform 0.15s ease; font-size: 14px; font-weight: 600; }
+        .volver-btn:hover { background: #374151; transform: translateY(-1px); }
+        .nit-badge { font-family: 'Courier New', monospace; background: #f0f4ff; color: #4338ca; padding: 3px 8px; border-radius: 6px; font-size: 13px; font-weight: 700; }
+        @media (max-width: 768px) { .busqueda-form { flex-direction: column; } .tabla-resultados { min-width: 100%; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>🗄️ Base de Datos</h1>
+                <p class="subtitulo">Registros guardados de evaluaciones. Haz clic en una fila para ver el detalle completo.</p>
+            </div>
+            <div style="display:flex;gap:10px;">
+                <button class="volver-btn" onclick="cerrarSesionAdmin()" style="background:#dc3545;">🚪 Cerrar Sesión</button>
+                <button class="volver-btn" onclick="window.location.href='index.html'">← Volver</button>
+            </div>
+        </header>
+
+        <div class="busqueda-card">
+            <div class="busqueda-form">
+                <input type="text" id="nit-busqueda" placeholder="Buscar por NIT (ej: 900.123.456-7)" />
+                <button type="button" onclick="buscarResultados()">🔍 Buscar</button>
+                <button type="button" onclick="cargarTablaInicial()" style="background:#6b7280;">↻ Todos</button>
+            </div>
+            <div id="busqueda-mensaje" class="mensaje-estado"></div>
+        </div>
+
+        <div id="tabla-resultados-container" class="tabla-wrapper">
+            <div class="loading">⏳ Cargando registros...</div>
+        </div>
+    </div>
+
+    <script>
+        const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbzwIG1w8c79MAO0gM_m0D0uFpbKD3GVpLu2ygP1sHEGPSRb9DJmX2xsx4W6bYcGMXDB/exec';
+        let resultadosActuales = [];
+
+        // ===== PROTECCIÓN: solo admin =====
+        (function() {
+            if (localStorage.getItem('admin') !== 'true') {
+                window.location.href = 'index.html';
+            }
+        })();
+
+        window.addEventListener('load', cargarTablaInicial);
+
+        async function cargarTablaInicial() {
+            mostrarMensaje('Cargando registros...', '');
+            document.getElementById('tabla-resultados-container').innerHTML = '<div class="loading">⏳ Cargando registros...</div>';
+            try {
+                const response = await fetch(SHEETS_API_URL, { mode: 'cors', cache: 'no-store' });
+                const data = await response.json();
+                if (!response.ok || !data.success) throw new Error(data.error || 'No fue posible cargar los registros.');
+                if (!Array.isArray(data.results) || data.results.length === 0) { mostrarSinDatos(); return; }
+                resultadosActuales = data.results;
+                mostrarMensaje(`Se encontraron ${data.results.length} registro(s).`, 'exito');
+                renderizarTabla(data.results);
+            } catch (error) {
+                mostrarMensaje(`Error: ${error.message}`, 'error');
+                document.getElementById('tabla-resultados-container').innerHTML = '<div class="sin-datos">❌ No se pudieron cargar los datos.</div>';
+            }
+        }
+
+        async function buscarResultados() {
+            const nit = document.getElementById('nit-busqueda').value.trim();
+            mostrarMensaje('Buscando resultados...', '');
+            try {
+                // Buscar por NIT (enviado como parámetro 'empresa' para compatibilidad con el backend)
+                const url = nit ? `${SHEETS_API_URL}?empresa=${encodeURIComponent(nit)}` : SHEETS_API_URL;
+                const response = await fetch(url, { mode: 'cors', cache: 'no-store' });
+                const data = await response.json();
+                if (!response.ok || !data.success) throw new Error(data.error || 'No fue posible consultar los registros.');
+                if (!Array.isArray(data.results) || data.results.length === 0) { mostrarSinDatos(); return; }
+                resultadosActuales = data.results;
+                mostrarMensaje(`Se encontraron ${data.results.length} registro(s).`, 'exito');
+                renderizarTabla(data.results);
+            } catch (error) {
+                mostrarMensaje(`Error: ${error.message}`, 'error');
+                document.getElementById('tabla-resultados-container').innerHTML = '';
+            }
+        }
+
+        function parsearDimensiones(dimStr) {
+            if (!dimStr) return [];
+            if (typeof dimStr === 'object' && !Array.isArray(dimStr)) {
+                return Object.entries(dimStr).map(([k, v]) => ({ nombre: k.charAt(0).toUpperCase() + k.slice(1).replace(/_/g, ' '), porcentaje: Number(v) || 0 }));
+            }
+            if (Array.isArray(dimStr)) {
+                return dimStr.map(d => ({ nombre: d.nombre || d.nombreDimension || d.name || '-', porcentaje: Number(d.porcentaje || d.value || 0) }));
+            }
+            if (typeof dimStr === 'string' && dimStr.trim() !== '') {
+                return dimStr.split(';').map(d => {
+                    const trimmed = d.trim();
+                    if (!trimmed) return null;
+                    const colonIdx = trimmed.lastIndexOf(':');
+                    if (colonIdx === -1) return null;
+                    const nombre = trimmed.substring(0, colonIdx).trim();
+                    const porcentaje = parseFloat(trimmed.substring(colonIdx + 1).replace('%', '').trim()) || 0;
+                    if (!nombre) return null;
+                    return { nombre, porcentaje };
+                }).filter(Boolean);
+            }
+            return [];
+        }
+
+        function colorNivel(nivel) {
+            const n = (nivel || '').toLowerCase();
+            if (n.includes('excelencia')) return '#28a745';
+            if (n.includes('estratégico') || n.includes('estrategico')) return '#17a2b8';
+            if (n.includes('estructurado')) return '#667eea';
+            if (n.includes('táctico') || n.includes('tactico')) return '#ffc107';
+            if (n.includes('operativo')) return '#fd7e14';
+            return '#dc3545';
+        }
+
+        function colorBarra(pct) {
+            if (pct >= 75) return '#28a745';
+            if (pct >= 50) return '#ffc107';
+            if (pct >= 25) return '#fd7e14';
+            return '#dc3545';
+        }
+
+        function renderizarTabla(resultados) {
+            const contenedor = document.getElementById('tabla-resultados-container');
+            const filas = resultados.map((item, index) => {
+                const fechaRaw = item.fecha || item.Fecha || item.guardadoEn || '';
+                const fecha = fechaRaw ? new Date(fechaRaw).toLocaleDateString('es-ES') : '-';
+                const puntaje = Number(item.puntaje_total || item.puntajeTotal || item['puntaje total'] || item['Puntaje Total'] || 0).toFixed(2);
+                const nivel = item.nivel || item.Nivel || '-';
+                // NIT: tomado de 'empresa' para compatibilidad con Sheets existente
+                const nit = item.empresa || item.Empresa || item.nit || item.NIT || '-';
+                const dimRaw = item.dimensiones || item.Dimensiones || item.dimenciones || '';
+                const dims = parsearDimensiones(dimRaw);
+                const colorN = colorNivel(nivel);
+
+                const barras = dims.map(d => `
+                    <div style="margin-bottom:5px;">
+                        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px;">
+                            <span style="color:#555;">${d.nombre}</span>
+                            <span style="font-weight:bold;color:${colorBarra(d.porcentaje)};">${d.porcentaje.toFixed(1)}%</span>
+                        </div>
+                        <div style="background:#e9ecef;border-radius:4px;height:6px;overflow:hidden;">
+                            <div style="width:${d.porcentaje}%;background:${colorBarra(d.porcentaje)};height:100%;border-radius:4px;"></div>
+                        </div>
+                    </div>`).join('');
+
+                // filaSheets: +2 porque Sheets es 1-based y hay una fila de headers
+                const filaSheets = index + 2;
+
+                return `
+                    <tr onclick="irADetalle(${index})">
+                        <td><span class="nit-badge">${nit}</span></td>
+                        <td>${fecha}</td>
+                        <td style="text-align:center;">
+                            <span style="font-size:18px;font-weight:bold;color:#667eea;">${puntaje}</span>
+                            <span style="font-size:11px;color:#999;"> / 5.0</span>
+                        </td>
+                        <td>
+                            <span style="background:${colorN};color:white;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:bold;">${nivel}</span>
+                        </td>
+                        <td style="min-width:250px;">
+                            ${barras || '<span style="color:#aaa;font-size:12px;">Sin datos</span>'}
+                        </td>
+                        <td onclick="event.stopPropagation()">
+                            <button onclick="eliminarRegistro(${index}, ${filaSheets})" style="background:#dc3545;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:bold;">
+                                🗑️ Borrar
+                            </button>
+                        </td>
+                    </tr>`;
+            }).join('');
+
+            contenedor.innerHTML = `
+                <table class="tabla-resultados">
+                    <thead>
+                        <tr>
+                            <th>NIT</th>
+                            <th>Fecha</th>
+                            <th style="text-align:center;">Puntaje Total</th>
+                            <th>Nivel</th>
+                            <th>Dimensiones</th>
+                            <th style="text-align:center;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>${filas}</tbody>
+                </table>`;
+        }
+
+        async function eliminarRegistro(index, filaSheets) {
+            const registro = resultadosActuales[index];
+            if (!registro) return;
+            const nit = registro.empresa || registro.Empresa || registro.nit || 'este registro';
+            if (!confirm(`¿Estás seguro de que quieres borrar el registro de NIT "${nit}"? Esta acción no se puede deshacer.`)) return;
+
+            mostrarMensaje('Eliminando registro...', '');
+            try {
+                const response = await fetch(SHEETS_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    // Enviamos filaSheets para que Apps Script borre la fila exacta sin depender de fecha
+                    body: JSON.stringify({
+                        accion: 'eliminar',
+                        filaSheets: filaSheets,
+                        empresa: registro.empresa || registro.Empresa || registro.nit || '',
+                        fecha: registro.fecha || registro.Fecha || ''
+                    })
+                });
+                const text = await response.text();
+                const data = JSON.parse(text);
+                if (!data.success) throw new Error(data.error || 'No se pudo eliminar');
+                mostrarMensaje('✅ Registro eliminado correctamente.', 'exito');
+                // Remover localmente para respuesta inmediata
+                resultadosActuales.splice(index, 1);
+                setTimeout(() => cargarTablaInicial(), 1000);
+            } catch (error) {
+                mostrarMensaje(`Error al eliminar: ${error.message}`, 'error');
+            }
+        }
+
+        function mostrarSinDatos() {
+            document.getElementById('tabla-resultados-container').innerHTML = '<div class="sin-datos">📭 No se encontraron registros.</div>';
+            mostrarMensaje('No se encontraron registros.', '');
+        }
+
+        function mostrarMensaje(texto, tipo) {
+            const mensaje = document.getElementById('busqueda-mensaje');
+            mensaje.textContent = texto;
+            mensaje.className = 'mensaje-estado';
+            if (tipo === 'exito') mensaje.classList.add('exito');
+            if (tipo === 'error') mensaje.classList.add('error');
+        }
+
+        function irADetalle(index) {
+            const registro = resultadosActuales[index];
+            if (!registro) return;
+            localStorage.setItem('registroSeleccionado', JSON.stringify(registro));
+            // Navegar usando NIT como identificador en la URL
+            const nit = registro.empresa || registro.Empresa || registro.nit || '';
+            window.location.href = `results.html?registroSeleccionado=1&nit=${encodeURIComponent(nit)}`;
+        }
+
+        function cerrarSesionAdmin() {
+            localStorage.removeItem('admin');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

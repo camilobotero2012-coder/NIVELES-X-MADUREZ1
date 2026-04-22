@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluación de Madurez Comercial - Descubre el potencial de tu empresa</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #667eea; --primary-dark: #5568d3; --primary-light: #7c8ff4;
+            --dark: #1a202c; --dark-light: #2d3748; --light: #f7fafc;
+            --gray: #cbd5e0; --gray-dark: #718096; --success: #48bb78;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 0; color: var(--dark); background-color: #fff; line-height: 1.6; }
+        header { background-color: #fff; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 50; }
+        .logo { font-size: 24px; font-weight: 700; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 8px; }
+        .logo::before { content: "📊"; -webkit-text-fill-color: unset; font-size: 28px; }
+        header nav { display: flex; gap: 40px; align-items: center; }
+        header nav a { text-decoration: none; color: var(--dark); font-size: 14px; font-weight: 500; transition: color 0.3s; }
+        header nav a:hover { color: var(--primary); }
+        .btn-header-db { background-color: #ffc107; color: #212529; padding: 10px 24px; border-radius: 6px; font-size: 14px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(255,193,7,0.25); }
+        .btn-header-db:hover { background-color: #e0a800; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(255,193,7,0.35); }
+        .btn-header-register { background-color: var(--primary); color: white; padding: 10px 24px; border-radius: 6px; font-size: 14px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(102,126,234,0.3); }
+        .btn-header-register:hover { background-color: var(--primary-dark); transform: translateY(-2px); }
+        .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); position: relative; overflow: hidden; padding: 60px 20px; }
+        .hero::before { content: ''; position: absolute; width: 500px; height: 500px; background: rgba(255,255,255,0.1); border-radius: 50%; top: -250px; left: -250px; animation: float 6s ease-in-out infinite; }
+        .hero::after { content: ''; position: absolute; width: 400px; height: 400px; background: rgba(255,255,255,0.08); border-radius: 50%; bottom: -200px; right: -200px; animation: float 8s ease-in-out infinite reverse; }
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(30px); } }
+        .hero-content { position: relative; z-index: 10; max-width: 800px; text-align: center; color: white; animation: fadeInUp 0.8s ease-out; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .hero-content h1 { font-size: 64px; font-weight: 800; margin-bottom: 20px; line-height: 1.2; }
+        .hero-content .subtitle { font-size: 24px; font-weight: 300; margin-bottom: 15px; opacity: 0.95; }
+        .hero-content p { font-size: 18px; margin-bottom: 40px; opacity: 0.9; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.8; }
+        .btn-cta { background-color: #fff; color: var(--primary); padding: 18px 48px; border-radius: 8px; font-size: 16px; font-weight: 700; border: none; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: pulse 2s ease-in-out infinite; }
+        .btn-cta:hover { transform: translateY(-4px); box-shadow: 0 15px 40px rgba(0,0,0,0.3); }
+        .btn-cta::before { content: "🏢"; font-size: 20px; }
+        @keyframes pulse { 0%, 100% { box-shadow: 0 10px 30px rgba(0,0,0,0.2); } 50% { box-shadow: 0 10px 40px rgba(0,0,0,0.3); } }
+        .features-section { padding: 80px 40px; background: var(--light); text-align: center; }
+        .features-section h2 { font-size: 36px; font-weight: 700; margin-bottom: 20px; color: var(--dark); }
+        .features-section > p { font-size: 18px; color: var(--gray-dark); margin-bottom: 60px; max-width: 600px; margin-left: auto; margin-right: auto; }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; max-width: 1200px; margin: 0 auto; }
+        .feature-card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s ease; text-align: center; }
+        .feature-card:hover { transform: translateY(-8px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+        .feature-icon { font-size: 48px; margin-bottom: 16px; display: block; }
+        .feature-card h3 { font-size: 20px; font-weight: 700; margin-bottom: 12px; color: var(--dark); }
+        .feature-card p { color: var(--gray-dark); font-size: 15px; line-height: 1.7; }
+        .steps-section { padding: 80px 40px; background: white; }
+        .steps-section h2 { font-size: 36px; font-weight: 700; text-align: center; margin-bottom: 60px; color: var(--dark); }
+        .steps-container { max-width: 900px; margin: 0 auto; }
+        .step { display: flex; gap: 30px; margin-bottom: 40px; align-items: flex-start; }
+        .step-number { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; flex-shrink: 0; }
+        .step-content h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; color: var(--dark); }
+        .step-content p { color: var(--gray-dark); font-size: 15px; line-height: 1.7; }
+        .cta-final { padding: 80px 40px; background: linear-gradient(135deg, var(--dark) 0%, var(--dark-light) 100%); text-align: center; color: white; }
+        .cta-final h2 { font-size: 40px; font-weight: 700; margin-bottom: 20px; }
+        .cta-final p { font-size: 18px; margin-bottom: 40px; opacity: 0.9; max-width: 600px; margin-left: auto; margin-right: auto; }
+        .btn-cta-secondary { background-color: var(--primary); color: white; padding: 16px 44px; border-radius: 8px; font-size: 16px; font-weight: 700; border: none; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 12px; }
+        .btn-cta-secondary:hover { background-color: var(--primary-dark); transform: translateY(-4px); }
+        footer { background-color: var(--dark); color: white; padding: 40px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); }
+        footer p { margin-bottom: 15px; font-size: 14px; }
+        footer a { color: var(--primary); text-decoration: none; margin: 0 15px; font-size: 14px; transition: color 0.3s; }
+        footer a:hover { color: var(--primary-light); }
+
+        /* ===== MODALES ===== */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal-content { background-color: #fefefe; margin: 6% auto; padding: 40px; border-radius: 12px; width: 90%; max-width: 500px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-50px); } to { opacity: 1; transform: translateY(0); } }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; transition: color 0.3s; }
+        .close:hover { color: #000; }
+        .modal-content h2 { margin: 0 0 10px 0; color: var(--dark); font-size: 26px; }
+        .modal-content > p { color: var(--gray-dark); margin: 0 0 25px 0; font-size: 14px; }
+        .form-group { margin-bottom: 18px; display: flex; flex-direction: column; }
+        .form-group label { margin-bottom: 6px; font-weight: 600; color: var(--dark); font-size: 14px; }
+        .form-group input, .form-group select { padding: 12px; border: 1px solid var(--gray); border-radius: 6px; font-size: 14px; font-family: inherit; transition: border-color 0.3s, box-shadow 0.3s; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+        .form-group input.error, .form-group select.error { border-color: #dc3545; }
+        .error-message { color: #dc3545; font-size: 12px; margin-top: 4px; display: none; }
+        .error-message.show { display: block; }
+        .btn-submit { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 700; transition: all 0.3s; width: 100%; margin-top: 10px; }
+        .btn-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102,126,234,0.3); }
+        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+        .message { padding: 12px; border-radius: 6px; margin-bottom: 15px; display: none; font-size: 14px; font-weight: 500; }
+        .message.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; display: block; }
+        .message.error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; display: block; }
+
+        /* Admin modal extras */
+        .admin-error { display: none; background: #ffe0e0; color: #c00; padding: 10px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; border-left: 4px solid #f66; }
+        .admin-success-msg { display: none; background: #d4edda; color: #155724; padding: 10px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; text-align: center; font-weight: 600; }
+        .btn-ingresar { display: none; width: 100%; background: linear-gradient(135deg, #28a745, #218838); color: white; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 12px; transition: all 0.3s; }
+        .btn-ingresar:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(40,167,69,0.35); }
+
+        @media (max-width: 768px) {
+            header { padding: 15px 20px; flex-wrap: wrap; }
+            .logo { font-size: 20px; flex-basis: 100%; margin-bottom: 15px; }
+            header nav { flex-basis: 100%; gap: 15px; justify-content: space-between; }
+            .hero { min-height: auto; padding: 40px 20px; }
+            .hero-content h1 { font-size: 40px; }
+            .features-section, .steps-section, .cta-final { padding: 50px 20px; }
+            .step { flex-direction: column; align-items: center; text-align: center; }
+            .modal-content { margin: 20% auto; padding: 30px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <div class="logo">EFICACIA</div>
+        <nav>
+            <a href="#features">Características</a>
+            <button class="btn-header-db" onclick="abrirLoginAdmin()">🔐 Acceso</button>
+            <button class="btn-header-register" onclick="abrirRegistro()">Registrar</button>
+        </nav>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>🚀 Modelo de Madurez</h1>
+            <p class="subtitle">Descubre dónde estás y hacia dónde quieres ir</p>
+            <p>Una evaluación integral que te ayudará a identificar fortalezas, oportunidades de mejora y crear un plan de transformación digital personalizado.</p>
+            <button class="btn-cta" onclick="abrirRegistro()">Comenzar Evaluación</button>
+            <p style="margin-top: 20px; font-size: 14px; opacity: 0.85;">✓ Toma 15-20 minutos | ✓ 100% gratuito | ✓ Resultados inmediatos</p>
+        </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="features-section" id="features">
+        <h2>¿Por qué realizar esta evaluación?</h2>
+        <p>Te ayuda a entender tu posición competitiva en el mercado actual</p>
+        <div class="features-grid">
+            <div class="feature-card"><span class="feature-icon">📊</span><h3>Diagnóstico Claro</h3><p>Obtén un análisis detallado de tu nivel de madurez en diferentes dimensiones de negocio.</p></div>
+            <div class="feature-card"><span class="feature-icon">🎯</span><h3>Benchmarking</h3><p>Compara tu empresa con estándares de la industria y empresas similares.</p></div>
+            <div class="feature-card"><span class="feature-icon">📈</span><h3>Plan de Mejora</h3><p>Recibe recomendaciones personalizadas para optimizar tu operación.</p></div>
+            <div class="feature-card"><span class="feature-icon">💡</span><h3>Insights Accionables</h3><p>Datos basados en mejores prácticas de consultorías internacionales.</p></div>
+            <div class="feature-card"><span class="feature-icon">🔐</span><h3>Datos Seguros</h3><p>Tu información es confidencial y protegida bajo los más altos estándares.</p></div>
+            <div class="feature-card"><span class="feature-icon">⚡</span><h3>Resultados Inmediatos</h3><p>Accede a tu informe personalizado apenas termines la evaluación.</p></div>
+        </div>
+    </section>
+
+    <!-- STEPS -->
+    <section class="steps-section" id="steps">
+        <h2>Cómo funciona</h2>
+        <div class="steps-container">
+            <div class="step">
+                <div class="step-number">1️⃣</div>
+                <div class="step-content"><h3>Registra tu Empresa</h3><p>Completa un breve formulario con el NIT de tu empresa. Es rápido y seguro. Esta información es obligatoria para personalizar tu evaluación.</p></div>
+            </div>
+            <div class="step">
+                <div class="step-number">2️⃣</div>
+                <div class="step-content"><h3>Responde la Encuesta</h3><p>Un cuestionario de 45-50 preguntas que evalúa dimensiones clave como estrategia, operaciones, tecnología, gestión de personas y resultados.</p></div>
+            </div>
+            <div class="step">
+                <div class="step-number">3️⃣</div>
+                <div class="step-content"><h3>Obtén tu Informe</h3><p>Recibe un análisis completo con tu puntuación de madurez, gráficos comparativos y recomendaciones específicas para mejorar.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA FINAL -->
+    <section class="cta-final">
+        <h2>¿Listo para transformar tu empresa?</h2>
+        <p>No necesitas ser experto. Simplemente registra tu empresa y comienza la evaluación. Tendrás tu informe en menos de una hora.</p>
+        <button class="btn-cta-secondary" onclick="abrirRegistro()">Registrar Ahora</button>
+    </section>
+
+    <!-- ===== MODAL REGISTRO ===== -->
+    <div id="registroModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarRegistro()">&times;</span>
+            <h2>Registra tu Empresa</h2>
+            <p>Completa este formulario para comenzar la evaluación</p>
+
+            <div id="mensajeRegistro" class="message"></div>
+
+            <form id="formRegistro" onsubmit="registrarEmpresa(event)">
+                <div class="form-group">
+                    <label for="nit">NIT *</label>
+                    <input type="text" id="nit" placeholder="900.123.456-7" maxlength="13" required autocomplete="off">
+                    <div class="error-message" id="error-nit"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="industria">Industria *</label>
+                    <select id="industria" required>
+                        <option value="">Selecciona una industria</option>
+                        <option value="CanalFerretero">🔨 Canal Ferretero</option>
+                        <option value="HomeAppliance">🏠 Home Appliance</option>
+                        <option value="BebidasFermentadas">🍺 Bebidas Fermentadas/Destiladas</option>
+                        <option value="HomeCare">🧹 Home Care</option>
+                        <option value="Pets">🐾 Pet's</option>
+                        <option value="HealthPharma">💊 Health & Pharma</option>
+                        <option value="Retail">🛍️ Retail</option>
+                    </select>
+                    <div class="error-message" id="error-industria"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="tamano">Tamaño de Empresa</label>
+                    <select id="tamano">
+                        <option value="small">Pequeña (1-50 empleados)</option>
+                        <option value="medium" selected>Mediana (51-250 empleados)</option>
+                        <option value="large">Grande (251-1000 empleados)</option>
+                        <option value="enterprise">Empresa (+1000 empleados)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="ciudad">Ciudad *</label>
+                    <select id="ciudad" required>
+                        <option value="">Selecciona tu ciudad</option>
+                        <option value="Bogota">🏛️ Bogotá</option>
+                        <option value="Medellin">🏔️ Medellín</option>
+                        <option value="Cali">💃 Cali</option>
+                        <option value="Barranquilla">🌊 Barranquilla</option>
+                        <option value="Cartagena">🏰 Cartagena</option>
+                        <option value="Bucaramanga">⛰️ Bucaramanga</option>
+                        <option value="SantaMarta">🏖️ Santa Marta</option>
+                    </select>
+                    <div class="error-message" id="error-ciudad"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="nombreUsuario">Tu Nombre *</label>
+                    <input type="text" id="nombreUsuario" placeholder="Juan Pérez" required>
+                    <div class="error-message" id="error-nombreUsuario"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Tu Email *</label>
+                    <input type="email" id="email" placeholder="tu@email.com" required>
+                    <div class="error-message" id="error-email"></div>
+                </div>
+
+                <button type="submit" class="btn-submit" id="btnSubmit">Registrar y Comenzar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== MODAL ADMIN ===== -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content" style="max-width:420px;">
+            <span class="close" onclick="cerrarLoginAdmin()">&times;</span>
+            <h2 style="color:#667eea;">🔐 Acceso Administrador</h2>
+            <p>Ingresa tus credenciales para continuar</p>
+
+            <div id="adminError" class="admin-error"></div>
+            <div id="adminSuccessMsg" class="admin-success-msg">✅ Login exitoso. Haz clic en Ingresar.</div>
+
+            <div id="adminFormFields">
+                <div class="form-group">
+                    <label>Usuario</label>
+                    <input type="text" id="adminUsuario" placeholder="admin" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="adminPassword" placeholder="••••••" onkeydown="if(event.key==='Enter') loginAdmin()">
+                </div>
+                <button onclick="loginAdmin()" class="btn-submit" id="btnLoginAdmin">Entrar</button>
+            </div>
+
+            <button class="btn-ingresar" id="btnIngresar" onclick="irADatabase()">🏛️ Ingresar a la Base de Datos</button>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>&copy; 2026 Evaluación de Madurez Comercial. Todos los derechos reservados.</p>
+        <div>
+            <a href="#">Privacidad</a>
+            <a href="#">Términos de Uso</a>
+            <a href="#">Contacto</a>
+            <a href="#">Blog</a>
+        </div>
+    </footer>
+
+    <script>
+        // ===== MODAL REGISTRO =====
+        function abrirRegistro() {
+            document.getElementById('registroModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            limpiarFormulario();
+        }
+
+        function cerrarRegistro() {
+            document.getElementById('registroModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            limpiarFormulario();
+        }
+
+        window.onclick = function(event) {
+            if (event.target === document.getElementById('registroModal')) cerrarRegistro();
+            if (event.target === document.getElementById('adminModal')) cerrarLoginAdmin();
+        };
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') { cerrarRegistro(); cerrarLoginAdmin(); }
+        });
+
+        // ===== FORMATEO AUTOMÁTICO NIT =====
+        document.getElementById('nit').addEventListener('input', function(e) {
+            // Solo dígitos
+            let raw = e.target.value.replace(/[^\d]/g, '').slice(0, 10);
+            let formatted = '';
+            if (raw.length <= 3) {
+                formatted = raw;
+            } else if (raw.length <= 6) {
+                formatted = raw.slice(0,3) + '.' + raw.slice(3);
+            } else if (raw.length <= 9) {
+                formatted = raw.slice(0,3) + '.' + raw.slice(3,6) + '.' + raw.slice(6);
+            } else {
+                formatted = raw.slice(0,3) + '.' + raw.slice(3,6) + '.' + raw.slice(6,9) + '-' + raw.slice(9,10);
+            }
+            e.target.value = formatted;
+        });
+
+        // Bloquear caracteres no numéricos en el NIT
+        document.getElementById('nit').addEventListener('keydown', function(e) {
+            const allowed = ['Backspace','Delete','ArrowLeft','ArrowRight','Tab','Home','End'];
+            if (allowed.includes(e.key)) return;
+            if (!/^\d$/.test(e.key)) e.preventDefault();
+        });
+
+        // ===== VALIDACIONES =====
+        function validarEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        function validarNIT(nit) {
+            const regex = /^\d{3}\.\d{3}\.\d{3}-\d{1}$/;
+            return regex.test(nit) && nit.length === 13;
+        }
+
+        function validarFormulario() {
+            const nit = document.getElementById('nit').value.trim();
+            const industria = document.getElementById('industria').value;
+            const ciudad = document.getElementById('ciudad').value;
+            const nombreUsuario = document.getElementById('nombreUsuario').value.trim();
+            const email = document.getElementById('email').value.trim();
+
+            let errores = {};
+            let valido = true;
+
+            if (!nit) {
+                errores['nit'] = 'El NIT es requerido';
+                valido = false;
+            } else if (!validarNIT(nit)) {
+                errores['nit'] = 'El NIT debe tener formato exacto 900.123.456-7';
+                valido = false;
+            }
+
+            if (!industria) { errores['industria'] = 'Debes seleccionar una industria'; valido = false; }
+            if (!ciudad) { errores['ciudad'] = 'Debes seleccionar una ciudad'; valido = false; }
+
+            if (!nombreUsuario) {
+                errores['nombreUsuario'] = 'Tu nombre es requerido';
+                valido = false;
+            } else if (nombreUsuario.length < 3) {
+                errores['nombreUsuario'] = 'Mínimo 3 caracteres';
+                valido = false;
+            }
+
+            if (!email) {
+                errores['email'] = 'El email es requerido';
+                valido = false;
+            } else if (!validarEmail(email)) {
+                errores['email'] = 'Email inválido';
+                valido = false;
+            }
+
+            limpiarErrores();
+            for (const [campo, mensaje] of Object.entries(errores)) {
+                const el = document.getElementById(campo);
+                const errEl = document.getElementById('error-' + campo);
+                if (el) el.classList.add('error');
+                if (errEl) { errEl.textContent = mensaje; errEl.classList.add('show'); }
+            }
+            return valido;
+        }
+
+        function limpiarErrores() {
+            document.querySelectorAll('#formRegistro input, #formRegistro select').forEach(i => i.classList.remove('error'));
+            document.querySelectorAll('#formRegistro .error-message').forEach(m => { m.textContent = ''; m.classList.remove('show'); });
+        }
+
+        function limpiarFormulario() {
+            document.getElementById('formRegistro').reset();
+            limpiarErrores();
+            const msg = document.getElementById('mensajeRegistro');
+            msg.className = 'message';
+            msg.textContent = '';
+        }
+
+        // ===== REGISTRO =====
+        async function registrarEmpresa(event) {
+            event.preventDefault();
+            if (!validarFormulario()) {
+                mostrarMensaje('Por favor completa todos los campos correctamente', 'error');
+                return;
+            }
+
+            const nit = document.getElementById('nit').value.trim();
+            const datos = {
+                company: {
+                    nit: nit,
+                    industry: document.getElementById('industria').value,
+                    size: document.getElementById('tamano').value,
+                    city: document.getElementById('ciudad').value
+                },
+                user: {
+                    name: document.getElementById('nombreUsuario').value.trim(),
+                    email: document.getElementById('email').value.trim()
+                }
+            };
+
+            const btnSubmit = document.getElementById('btnSubmit');
+            btnSubmit.disabled = true;
+            btnSubmit.textContent = 'Registrando...';
+
+            try {
+                await new Promise(resolve => setTimeout(resolve, 1200));
+
+                const resultado = {
+                    success: true,
+                    company: { id: 'company-' + Math.random().toString(36).substr(2, 9), ...datos.company },
+                    user: { id: 'user-' + Math.random().toString(36).substr(2, 9), ...datos.user }
+                };
+
+                const sesion = {
+                    isAuthenticated: true,
+                    companyId: resultado.company.id,
+                    userId: resultado.user.id,
+                    nit: resultado.company.nit,
+                    companyName: resultado.company.nit, // alias para compatibilidad
+                    userName: resultado.user.name,
+                    email: resultado.user.email,
+                    industry: resultado.company.industry,
+                    city: resultado.company.city,
+                    companySize: resultado.company.size,
+                    registeredAt: new Date().toISOString()
+                };
+
+                localStorage.setItem('sesionActiva', JSON.stringify(sesion));
+                mostrarMensaje('✅ ¡Bienvenido ' + datos.user.name + '! Iniciando encuesta...', 'success');
+
+                setTimeout(() => { window.location.href = 'survey.html'; }, 1500);
+
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarMensaje('❌ ' + error.message, 'error');
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.textContent = 'Registrar y Comenzar';
+            }
+        }
+
+        function mostrarMensaje(texto, tipo) {
+            const el = document.getElementById('mensajeRegistro');
+            el.textContent = texto;
+            el.className = 'message ' + tipo;
+        }
+
+        // ===== ADMIN LOGIN =====
+        function abrirLoginAdmin() {
+            document.getElementById('adminModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            // Reset estado
+            document.getElementById('adminUsuario').value = '';
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminUsuario').disabled = false;
+            document.getElementById('adminPassword').disabled = false;
+            document.getElementById('adminError').style.display = 'none';
+            document.getElementById('adminError').textContent = '';
+            document.getElementById('adminSuccessMsg').style.display = 'none';
+            document.getElementById('adminFormFields').style.display = 'block';
+            document.getElementById('btnLoginAdmin').style.display = 'block';
+            document.getElementById('btnIngresar').style.display = 'none';
+            setTimeout(() => document.getElementById('adminUsuario').focus(), 100);
+        }
+
+        function cerrarLoginAdmin() {
+            document.getElementById('adminModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function loginAdmin() {
+            const usuario = document.getElementById('adminUsuario').value.trim();
+            const password = document.getElementById('adminPassword').value.trim();
+            const errDiv = document.getElementById('adminError');
+            const successDiv = document.getElementById('adminSuccessMsg');
+
+            if (usuario === 'admin' && password === '12345') {
+                localStorage.setItem('admin', 'true');
+                errDiv.style.display = 'none';
+                // Deshabilitar campos y ocultar botón login
+                document.getElementById('adminUsuario').disabled = true;
+                document.getElementById('adminPassword').disabled = true;
+                document.getElementById('btnLoginAdmin').style.display = 'none';
+                // Mostrar mensaje éxito y botón Ingresar
+                successDiv.style.display = 'block';
+                document.getElementById('btnIngresar').style.display = 'block';
+            } else {
+                errDiv.textContent = '❌ Credenciales incorrectas. Intenta de nuevo.';
+                errDiv.style.display = 'block';
+                document.getElementById('adminPassword').value = '';
+            }
+        }
+
+        function irADatabase() {
+            cerrarLoginAdmin();
+            window.location.href = 'database.html';
+        }
+    </script>
+</body>
+</html>

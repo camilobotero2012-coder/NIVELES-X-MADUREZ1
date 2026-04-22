@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encuesta de Madurez - Evaluación Empresarial</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        header { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+        header h1 { color: #667eea; font-size: 24px; }
+        .header-info { text-align: right; font-size: 13px; color: #666; }
+        .header-info strong { color: #333; display: block; font-family: 'Courier New', monospace; font-size: 15px; }
+        .progress-bar { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .progress-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; font-weight: bold; }
+        .progress-header .label { color: #333; }
+        .progress-header .stats { color: #667eea; }
+        .progress-track { height: 8px; background: #e0e0e0; border-radius: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); transition: width 0.3s ease; }
+        .encuesta-container { background: white; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 30px; }
+        .dimension-section { margin-bottom: 40px; }
+        .dimension-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; color: white; }
+        .dimension-badge { width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; flex-shrink: 0; }
+        .dimension-info h2 { font-size: 20px; font-weight: bold; margin-bottom: 5px; }
+        .dimension-info p { font-size: 13px; opacity: 0.9; }
+        .preguntas-group { display: grid; gap: 15px; }
+        .pregunta-item { background: #f8f9fa; border-radius: 10px; padding: 20px; border-left: 4px solid #e0e0e0; transition: border-color 0.3s; }
+        .pregunta-item.respondida { border-left-color: #667eea; }
+        .pregunta-label { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px; }
+        .pregunta-numero { width: 30px; height: 30px; background: #e0e0e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; color: #666; flex-shrink: 0; transition: all 0.3s; }
+        .pregunta-numero.respondida { background: #667eea; color: white; }
+        .pregunta-texto { font-size: 14px; color: #333; line-height: 1.6; flex: 1; }
+        .respuesta-opciones { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+        .opcion-btn { padding: 10px 15px; border: 2px solid #e0e0e0; border-radius: 8px; background: white; color: #666; font-size: 13px; cursor: pointer; transition: all 0.3s; text-align: center; }
+        .opcion-btn:hover { border-color: #667eea; color: #667eea; transform: translateY(-2px); }
+        .opcion-btn.seleccionado { background: #667eea; border-color: #667eea; color: white; font-weight: bold; }
+        .botones-accion { display: flex; justify-content: space-between; margin-top: 30px; gap: 15px; }
+        .btn-guardar-borrador { padding: 14px 28px; background: #6c757d; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.3s; }
+        .btn-guardar-borrador:hover { background: #5a6268; transform: translateY(-2px); }
+        .btn-enviar { padding: 14px 28px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s; flex: 1; }
+        .btn-enviar:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102,126,234,0.3); }
+        .btn-enviar:disabled { opacity: 0.5; cursor: not-allowed; }
+        .alerta-sesion { background: #fff3cd; border: 1px solid #ffc107; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; color: #856404; font-size: 13px; }
+        .loading { display: none; text-align: center; padding: 60px; }
+        .spinner { display: inline-block; width: 40px; height: 40px; border: 4px solid rgba(102,126,234,0.2); border-top: 4px solid #667eea; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .error-message { display: none; background: #ffe0e0; color: #c00; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #f66; font-size: 14px; }
+        .error-message.visible { display: block; }
+        .info-escala { background: #f0f4ff; border: 1px solid #667eea; padding: 15px; border-radius: 6px; margin-bottom: 20px; font-size: 13px; }
+        .info-escala strong { color: #667eea; }
+        @media (max-width: 768px) {
+            .respuesta-opciones { grid-template-columns: repeat(2, 1fr); }
+            .botones-accion { flex-direction: column; }
+            .btn-enviar { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📋 Encuesta de Madurez Empresarial</h1>
+            <div class="header-info">
+                <strong id="nit-display">-</strong>
+                <span id="usuario-email">-</span>
+            </div>
+        </header>
+
+        <div class="alerta-sesion" id="alerta-sesion" style="display: none;">
+            ⚠️ Tu sesión está próxima a expirar. Los datos se guardan automáticamente.
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-header">
+                <span class="label">Progreso de respuestas</span>
+                <span class="stats"><span id="respuestas-completadas">0</span>/<span id="respuestas-totales">54</span></span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 15px;">Cargando encuesta...</p>
+        </div>
+
+        <div class="encuesta-container" id="content" style="display: none;">
+            <div class="info-escala">
+                <strong>📊 Escala de evaluación:</strong>
+                No iniciado (0) → En desarrollo (0.33) → Implementado (0.66) → Optimizado (1.0)
+            </div>
+            <div class="error-message" id="error-message"></div>
+            <form id="formulario-encuesta"></form>
+            <div class="botones-accion">
+                <button type="button" class="btn-guardar-borrador" onclick="guardarBorrador()">💾 Guardar borrador</button>
+                <button type="button" class="btn-enviar" id="btn-enviar" onclick="enviarEncuesta()" disabled style="opacity:0.5;cursor:not-allowed;">Enviar Encuesta ✓</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="calculador-madurez.js"></script>
+    <script>
+        let estructura = null;
+        let calculadora = null;
+        let respuestas = {};
+        let sesionData = null;
+
+        function validarAutenticacion() {
+            const sesion = localStorage.getItem('sesionActiva');
+            if (!sesion) {
+                window.location.href = 'index.html';
+                return false;
+            }
+            try {
+                sesionData = JSON.parse(sesion);
+                // Mostrar NIT como identificador
+                const nitDisplay = sesionData.nit || sesionData.companyName || 'Empresa';
+                document.getElementById('nit-display').textContent = nitDisplay;
+                document.getElementById('usuario-email').textContent = sesionData.email || 'Usuario';
+                return true;
+            } catch (e) {
+                window.location.href = 'index.html';
+                return false;
+            }
+        }
+
+        async function inicializarEncuesta() {
+            document.getElementById('loading').style.display = 'block';
+            try {
+                if (!validarAutenticacion()) return;
+
+                const resp = await fetch('estructura-encuesta.json');
+                if (!resp.ok) throw new Error('No se pudo cargar la estructura');
+
+                estructura = await resp.json();
+                calculadora = new CalculadorMaturez(estructura);
+                // cargarBorrador valida internamente que el NIT coincida con la sesión actual
+                cargarBorrador();
+                renderizarEncuesta();
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+                console.log('✅ Encuesta inicializada');
+            } catch (error) {
+                console.error('❌ Error:', error);
+                document.getElementById('loading').style.display = 'none';
+                mostrarError('No se pudo cargar la encuesta: ' + error.message);
+                document.getElementById('content').style.display = 'block';
+            }
+        }
+
+        function renderizarEncuesta() {
+            const formulario = document.getElementById('formulario-encuesta');
+            formulario.innerHTML = '';
+            let numeroGlobal = 1;
+
+            estructura.dimensiones.forEach((dimension, idxDim) => {
+                const dimensionDiv = document.createElement('div');
+                dimensionDiv.className = 'dimension-section';
+
+                const encabezado = document.createElement('div');
+                encabezado.className = 'dimension-header';
+                encabezado.innerHTML = `
+                    <div class="dimension-badge">${idxDim + 1}</div>
+                    <div class="dimension-info">
+                        <h2>${dimension.nombre}</h2>
+                        <p>${dimension.descripcion || ''}</p>
+                    </div>`;
+                dimensionDiv.appendChild(encabezado);
+
+                const preguntasGroup = document.createElement('div');
+                preguntasGroup.className = 'preguntas-group';
+
+                dimension.parametros.forEach((parametro) => {
+                    parametro.preguntas.forEach((pregunta) => {
+                        const preguntaDiv = document.createElement('div');
+                        preguntaDiv.className = 'pregunta-item';
+                        preguntaDiv.id = `pregunta-${pregunta.id}`;
+
+                        // Verificar si ya tiene respuesta (borrador)
+                        const respuestaActual = respuestas[pregunta.id];
+                        const opcionesHtml = [
+                            { texto: 'No iniciado', valor: 0 },
+                            { texto: 'En desarrollo', valor: 0.33 },
+                            { texto: 'Implementado', valor: 0.66 },
+                            { texto: 'Optimizado', valor: 1 }
+                        ].map(op => `
+                            <button type="button"
+                                class="opcion-btn${respuestaActual === op.valor ? ' seleccionado' : ''}"
+                                onclick="seleccionarOpcion('${pregunta.id}', ${op.valor}, this)">
+                                ${op.texto}
+                            </button>`).join('');
+
+                        preguntaDiv.innerHTML = `
+                            <div class="pregunta-label">
+                                <div class="pregunta-numero${respuestaActual !== undefined ? ' respondida' : ''}" id="num-${pregunta.id}">${numeroGlobal}</div>
+                                <div class="pregunta-texto">${pregunta.texto}</div>
+                            </div>
+                            <div class="respuesta-opciones">${opcionesHtml}</div>`;
+
+                        if (respuestaActual !== undefined) {
+                            preguntaDiv.classList.add('respondida');
+                        }
+
+                        preguntasGroup.appendChild(preguntaDiv);
+                        numeroGlobal++;
+                    });
+                });
+
+                dimensionDiv.appendChild(preguntasGroup);
+                formulario.appendChild(dimensionDiv);
+            });
+
+            document.getElementById('respuestas-totales').textContent = numeroGlobal - 1;
+            actualizarProgreso();
+        }
+
+        function seleccionarOpcion(preguntaId, valor, btn) {
+            respuestas[preguntaId] = valor;
+            const preguntaDiv = document.getElementById(`pregunta-${preguntaId}`);
+            preguntaDiv.querySelectorAll('.opcion-btn').forEach(b => b.classList.remove('seleccionado'));
+            btn.classList.add('seleccionado');
+            preguntaDiv.classList.add('respondida');
+            document.getElementById(`num-${preguntaId}`).classList.add('respondida');
+            actualizarProgreso();
+            guardarBorrador();
+        }
+
+        function actualizarProgreso() {
+            const completadas = Object.keys(respuestas).length;
+            const total = parseInt(document.getElementById('respuestas-totales').textContent) || 54;
+            const porcentaje = (completadas / total) * 100;
+            document.getElementById('respuestas-completadas').textContent = completadas;
+            document.getElementById('progress-fill').style.width = porcentaje + '%';
+            const btnEnviar = document.getElementById('btn-enviar');
+            if (completadas >= total) {
+                btnEnviar.disabled = false;
+                btnEnviar.style.opacity = '1';
+                btnEnviar.style.cursor = 'pointer';
+            } else {
+                btnEnviar.disabled = true;
+                btnEnviar.style.opacity = '0.5';
+                btnEnviar.style.cursor = 'not-allowed';
+            }
+        }
+
+        function guardarBorrador() {
+            try {
+                const borrador = {
+                    sesionId: sesionData && sesionData.id,
+                    nit: sesionData && (sesionData.nit || sesionData.companyName), // guardar NIT para validar al recargar
+                    respuestas: respuestas,
+                    completadas: Object.keys(respuestas).length,
+                    guardadoEn: new Date().toISOString()
+                };
+                localStorage.setItem('borrador-encuesta', JSON.stringify(borrador));
+                console.log('💾 Borrador guardado para NIT:', borrador.nit);
+            } catch (error) {
+                console.error('Error guardando borrador:', error);
+            }
+        }
+
+        function cargarBorrador() {
+            try {
+                const borrador = localStorage.getItem('borrador-encuesta');
+                if (!borrador) return;
+
+                const datos = JSON.parse(borrador);
+
+                // Verificar que el borrador pertenece al NIT de la sesión actual
+                // Si el NIT no coincide, descartar el borrador y limpiar localStorage
+                const nitActual = sesionData && (sesionData.nit || sesionData.companyName);
+                const nitBorrador = datos.nit || datos.sesionId; // sesionId era el identificador viejo
+
+                if (nitActual && nitBorrador && nitBorrador !== nitActual) {
+                    console.log('⚠️ Borrador descartado: pertenece a otro NIT (' + nitBorrador + ' ≠ ' + nitActual + ')');
+                    localStorage.removeItem('borrador-encuesta');
+                    respuestas = {};
+                    return;
+                }
+
+                respuestas = datos.respuestas || {};
+                console.log('📂 Borrador cargado para NIT', nitActual, ':', Object.keys(respuestas).length, 'respuestas');
+            } catch (error) {
+                console.error('Error cargando borrador:', error);
+                localStorage.removeItem('borrador-encuesta');
+                respuestas = {};
+            }
+        }
+
+        async function enviarEncuesta() {
+            try {
+                const totalPreguntas = parseInt(document.getElementById('respuestas-totales').textContent) || 54;
+                if (Object.keys(respuestas).length < totalPreguntas) {
+                    mostrarError(`⚠️ Debes responder todas las ${totalPreguntas} preguntas antes de enviar`);
+                    return;
+                }
+
+                const btnEnviar = document.getElementById('btn-enviar');
+                btnEnviar.disabled = true;
+                btnEnviar.textContent = '⏳ Procesando...';
+
+                const resultado = calculadora.calcularScore(respuestas);
+                const reporte = calculadora.generarReporte(resultado);
+
+                const dimensionesStr = (resultado.dimensiones || [])
+                    .map(dim => `${dim.nombreDimension}: ${Number(dim.porcentaje).toFixed(1)}%`)
+                    .join('; ');
+
+                // Identificador: NIT
+                const nitEmpresa = sesionData.nit || sesionData.companyName || 'NIT-desconocido';
+
+                const evaluacion = {
+                    sesionId: sesionData.id,
+                    companyId: sesionData.companyId,
+                    userId: sesionData.userId,
+                    empresa: nitEmpresa,      // 'empresa' = NIT para compatibilidad con Sheets
+                    nit: nitEmpresa,
+                    usuario: sesionData.userName || '',
+                    email: sesionData.email || '',
+                    respuestas: respuestas,
+                    resultado: resultado,
+                    reporte: reporte,
+                    dimensionesStr: dimensionesStr,
+                    completadoEn: new Date().toISOString()
+                };
+
+                localStorage.setItem('ultimaEvaluacion', JSON.stringify(evaluacion));
+                localStorage.removeItem('borrador-encuesta');
+                localStorage.removeItem('evaluacionGuardadaEnBD');
+
+                console.log('✅ Evaluación guardada en localStorage:', evaluacion);
+
+                setTimeout(() => { window.location.href = 'results.html'; }, 1500);
+
+            } catch (error) {
+                mostrarError('Error al procesar la encuesta: ' + error.message);
+                const btnEnviar = document.getElementById('btn-enviar');
+                btnEnviar.disabled = false;
+                btnEnviar.textContent = 'Enviar Encuesta ✓';
+            }
+        }
+
+        function mostrarError(mensaje) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = '❌ ' + mensaje;
+            errorDiv.classList.add('visible');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => { errorDiv.classList.remove('visible'); }, 6000);
+        }
+
+        window.addEventListener('beforeunload', () => {
+            if (Object.keys(respuestas).length > 0) guardarBorrador();
+        });
+
+        window.addEventListener('load', inicializarEncuesta);
+    </script>
+</body>
+</html>

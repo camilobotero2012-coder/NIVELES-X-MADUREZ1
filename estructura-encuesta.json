@@ -1,0 +1,461 @@
+{
+  "nombre": "Encuesta de Madurez Comercial",
+  "version": "1.0",
+  "descripcion": "Sistema de evaluación de madurez empresarial con 54 preguntas distribuidas en 5 dimensiones",
+  "puntajeMaxTotal": 5,
+  
+  "dimensiones": [
+    {
+      "id": "estrategia",
+      "nombre": "Estrategia",
+      "descripcion": "Dirección, visión y planificación estratégica de la empresa",
+      "puntosMax": 1.0,
+      "porcentaje": 20,
+      "parametros": [
+        {
+          "id": "p1",
+          "nombre": "Visión, Misión y Valores",
+          "puntosMax": 0.34,
+          "preguntas": [
+            {
+              "id": "Q1",
+              "texto": "¿La empresa tiene una visión, misión y valores documentados y comunicados?",
+              "puntosMax": 0.11
+            },
+            {
+              "id": "Q2",
+              "texto": "¿Se miden y evalúan los avances hacia la visión estratégica?",
+              "puntosMax": 0.11
+            },
+            {
+              "id": "Q3",
+              "texto": "¿Los valores corporativos se reflejan en las decisiones y acciones diarias?",
+              "puntosMax": 0.12
+            }
+          ]
+        },
+        {
+          "id": "p2",
+          "nombre": "Planificación Estratégica",
+          "puntosMax": 0.33,
+          "preguntas": [
+            {
+              "id": "Q4",
+              "texto": "¿Existe un plan estratégico documentado con objetivos claros?",
+              "puntosMax": 0.11
+            },
+            {
+              "id": "Q5",
+              "texto": "¿Se realiza análisis periódico del entorno competitivo (FODA)?",
+              "puntosMax": 0.11
+            },
+            {
+              "id": "Q6",
+              "texto": "¿El plan estratégico se comunica a todos los niveles de la organización?",
+              "puntosMax": 0.11
+            }
+          ]
+        },
+        {
+          "id": "p3",
+          "nombre": "Gobernanza Corporativa",
+          "puntosMax": 0.33,
+          "preguntas": [
+            {
+              "id": "Q7",
+              "texto": "¿Existe claridad en roles y responsabilidades de la estructura organizacional?",
+              "puntosMax": 0.17
+            },
+            {
+              "id": "Q8",
+              "texto": "¿Se cumplen principios de transparencia y rendición de cuentas?",
+              "puntosMax": 0.16
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "operacional",
+      "nombre": "Operacional",
+      "descripcion": "Procesos, calidad y eficiencia operativa",
+      "puntosMax": 1.0,
+      "porcentaje": 20,
+      "parametros": [
+        {
+          "id": "p4",
+          "nombre": "Procesos y Procedimientos",
+          "puntosMax": 0.25,
+          "preguntas": [
+            {
+              "id": "Q9",
+              "texto": "¿Los procesos clave están documentados?",
+              "puntosMax": 0.08
+            },
+            {
+              "id": "Q10",
+              "texto": "¿Se miden indicadores de desempeño de los procesos?",
+              "puntosMax": 0.085
+            },
+            {
+              "id": "Q11",
+              "texto": "¿Existen procedimientos para mejora continua de procesos?",
+              "puntosMax": 0.085
+            }
+          ]
+        },
+        {
+          "id": "p5",
+          "nombre": "Gestión de Operaciones",
+          "puntosMax": 0.25,
+          "preguntas": [
+            {
+              "id": "Q12",
+              "texto": "¿Se realiza planificación de la demanda y capacidad productiva?",
+              "puntosMax": 0.08
+            },
+            {
+              "id": "Q13",
+              "texto": "¿Se controlan los niveles de inventario de forma eficiente?",
+              "puntosMax": 0.085
+            },
+            {
+              "id": "Q14",
+              "texto": "¿Se optimiza la utilización de recursos (equipos, personal, materiales)?",
+              "puntosMax": 0.085
+            }
+          ]
+        },
+        {
+          "id": "p6",
+          "nombre": "Gestión de Cadena de Suministro",
+          "puntosMax": 0.25,
+          "preguntas": [
+            {
+              "id": "Q15",
+              "texto": "¿Se tienen relaciones formales con proveedores clave?",
+              "puntosMax": 0.08
+            },
+            {
+              "id": "Q16",
+              "texto": "¿Se evalúa regularmente el desempeño de proveedores?",
+              "puntosMax": 0.085
+            },
+            {
+              "id": "Q17",
+              "texto": "¿Se tiene visibilidad de la cadena de suministro?",
+              "puntosMax": 0.085
+            }
+          ]
+        },
+        {
+          "id": "p7",
+          "nombre": "Gestión de Calidad",
+          "puntosMax": 0.25,
+          "preguntas": [
+            {
+              "id": "Q18",
+              "texto": "¿Se tienen estándares de calidad definidos?",
+              "puntosMax": 0.08
+            },
+            {
+              "id": "Q19",
+              "texto": "¿Se realizan inspecciones y controles de calidad?",
+              "puntosMax": 0.085
+            },
+            {
+              "id": "Q20",
+              "texto": "¿Se realiza seguimiento de reclamos y devoluciones?",
+              "puntosMax": 0.085
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "tecnologia",
+      "nombre": "Tecnología",
+      "descripcion": "Infraestructura, sistemas y transformación digital",
+      "puntosMax": 1.0,
+      "porcentaje": 20,
+      "parametros": [
+        {
+          "id": "p8",
+          "nombre": "Infraestructura Tecnológica",
+          "puntosMax": 0.2,
+          "preguntas": [
+            {
+              "id": "Q21",
+              "texto": "¿Se dispone de infraestructura de hardware y conectividad robusta?",
+              "puntosMax": 0.07
+            },
+            {
+              "id": "Q22",
+              "texto": "¿Se realiza mantenimiento preventivo de los sistemas?",
+              "puntosMax": 0.065
+            },
+            {
+              "id": "Q23",
+              "texto": "¿Se tiene plan de continuidad y recuperación ante desastres?",
+              "puntosMax": 0.065
+            }
+          ]
+        },
+        {
+          "id": "p9",
+          "nombre": "Seguridad y Protección de Datos",
+          "puntosMax": 0.2,
+          "preguntas": [
+            {
+              "id": "Q24",
+              "texto": "¿Se tienen políticas de seguridad de información documentadas?",
+              "puntosMax": 0.07
+            },
+            {
+              "id": "Q25",
+              "texto": "¿Se realizan copias de seguridad regularmente?",
+              "puntosMax": 0.065
+            },
+            {
+              "id": "Q26",
+              "texto": "¿Se cumple con normativas de privacidad y protección de datos?",
+              "puntosMax": 0.065
+            }
+          ]
+        },
+        {
+          "id": "p10",
+          "nombre": "Sistemas de Información",
+          "puntosMax": 0.2,
+          "preguntas": [
+            {
+              "id": "Q27",
+              "texto": "¿Se utilizan sistemas ERP o de gestión integrada?",
+              "puntosMax": 0.07
+            },
+            {
+              "id": "Q28",
+              "texto": "¿Se tiene acceso a información en tiempo real para la toma de decisiones?",
+              "puntosMax": 0.065
+            },
+            {
+              "id": "Q29",
+              "texto": "¿Se realiza análisis de datos (business intelligence)?",
+              "puntosMax": 0.065
+            }
+          ]
+        },
+        {
+          "id": "p11",
+          "nombre": "Transformación Digital",
+          "puntosMax": 0.2,
+          "preguntas": [
+            {
+              "id": "Q30",
+              "texto": "¿Existe una estrategia clara de transformación digital?",
+              "puntosMax": 0.07
+            },
+            {
+              "id": "Q31",
+              "texto": "¿Se está automatizando procesos manualmente intensivos?",
+              "puntosMax": 0.065
+            },
+            {
+              "id": "Q32",
+              "texto": "¿Se tienen canales digitales de atención al cliente?",
+              "puntosMax": 0.065
+            }
+          ]
+        },
+        {
+          "id": "p12",
+          "nombre": "Innovación Tecnológica",
+          "puntosMax": 0.2,
+          "preguntas": [
+            {
+              "id": "Q33",
+              "texto": "¿Se invierte en investigación y desarrollo de nuevas soluciones?",
+              "puntosMax": 0.1
+            },
+            {
+              "id": "Q34",
+              "texto": "¿Se utilizan tecnologías emergentes (IoT, IA, Cloud)?",
+              "puntosMax": 0.1
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "personas",
+      "nombre": "Gestión de Personas",
+      "descripcion": "Talento, cultura y desarrollo organizacional",
+      "puntosMax": 1.0,
+      "porcentaje": 20,
+      "parametros": [
+        {
+          "id": "p13",
+          "nombre": "Reclutamiento y Selección",
+          "puntosMax": 0.25,
+          "preguntas": [
+            {
+              "id": "Q35",
+              "texto": "¿Existe proceso formalizado de reclutamiento?",
+              "puntosMax": 0.08
+            },
+            {
+              "id": "Q36",
+              "texto": "¿Se utiliza análisis de competencias en la selección?",
+              "puntosMax": 0.085
+            },
+            {
+              "id": "Q37",
+              "texto": "¿Se realiza onboarding estructurado para nuevos empleados?",
+              "puntosMax": 0.085
+            }
+          ]
+        },
+        {
+          "id": "p14",
+          "nombre": "Desarrollo y Capacitación",
+          "puntosMax": 0.25,
+          "preguntas": [
+            {
+              "id": "Q38",
+              "texto": "¿Se identifican necesidades de capacitación?",
+              "puntosMax": 0.08
+            },
+            {
+              "id": "Q39",
+              "texto": "¿Se realiza plan de desarrollo individual para colaboradores?",
+              "puntosMax": 0.085
+            },
+            {
+              "id": "Q40",
+              "texto": "¿Se mide el impacto de la capacitación?",
+              "puntosMax": 0.085
+            }
+          ]
+        },
+        {
+          "id": "p15",
+          "nombre": "Cultura y Clima Organizacional",
+          "puntosMax": 0.25,
+          "preguntas": [
+            {
+              "id": "Q41",
+              "texto": "¿Se realiza medición periódica del clima organizacional?",
+              "puntosMax": 0.08
+            },
+            {
+              "id": "Q42",
+              "texto": "¿Existe buen nivel de comunicación entre áreas?",
+              "puntosMax": 0.085
+            },
+            {
+              "id": "Q43",
+              "texto": "¿Se promueve el trabajo en equipo y colaboración?",
+              "puntosMax": 0.085
+            }
+          ]
+        },
+        {
+          "id": "p16",
+          "nombre": "Gestión del Desempeño",
+          "puntosMax": 0.25,
+          "preguntas": [
+            {
+              "id": "Q44",
+              "texto": "¿Se establecen objetivos claros y medibles por colaborador?",
+              "puntosMax": 0.08
+            },
+            {
+              "id": "Q45",
+              "texto": "¿Se realiza evaluación periódica del desempeño?",
+              "puntosMax": 0.085
+            },
+            {
+              "id": "Q46",
+              "texto": "¿Se vincula desempeño con reconocimiento/compensación?",
+              "puntosMax": 0.085
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "resultados",
+      "nombre": "Resultados",
+      "descripcion": "Rentabilidad, sostenibilidad y posicionamiento",
+      "puntosMax": 1.0,
+      "porcentaje": 20,
+      "parametros": [
+        {
+          "id": "p17",
+          "nombre": "Rentabilidad y Generación de Valor",
+          "puntosMax": 0.33,
+          "preguntas": [
+            {
+              "id": "Q47",
+              "texto": "¿Se alcanzan regularmente los objetivos financieros?",
+              "puntosMax": 0.11
+            },
+            {
+              "id": "Q48",
+              "texto": "¿Se monitorean indicadores de rentabilidad (EBITDA, ROE, ROI)?",
+              "puntosMax": 0.11
+            },
+            {
+              "id": "Q49",
+              "texto": "¿Se generan ingresos recurrentes o pasivos?",
+              "puntosMax": 0.11
+            }
+          ]
+        },
+        {
+          "id": "p18",
+          "nombre": "Sostenibilidad",
+          "puntosMax": 0.33,
+          "preguntas": [
+            {
+              "id": "Q50",
+              "texto": "¿Se tiene estrategia de responsabilidad social corporativa?",
+              "puntosMax": 0.11
+            },
+            {
+              "id": "Q51",
+              "texto": "¿Se miden indicadores ambientales y de sustentabilidad?",
+              "puntosMax": 0.11
+            },
+            {
+              "id": "Q52",
+              "texto": "¿Se cumple con normativas y regulaciones vigentes?",
+              "puntosMax": 0.11
+            }
+          ]
+        },
+        {
+          "id": "p19",
+          "nombre": "Posicionamiento de Marca",
+          "puntosMax": 0.34,
+          "preguntas": [
+            {
+              "id": "Q53",
+              "texto": "¿Se realiza medición de satisfacción del cliente?",
+              "puntosMax": 0.17
+            },
+            {
+              "id": "Q54",
+              "texto": "¿Se monitorea percepción y reputación de la marca?",
+              "puntosMax": 0.17
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
