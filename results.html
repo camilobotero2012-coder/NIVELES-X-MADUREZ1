@@ -45,6 +45,8 @@
         .btn-guardar:hover { background: #e0a800; transform: translate(0, -2px); }
         .btn-volver-db { background: #343a40; color: white; }
         .btn-volver-db:hover { background: #23272b; transform: translate(0, -2px); }
+        .btn-descargar-encuesta { background: #6f42c1; color: white; }
+        .btn-descargar-encuesta:hover { background: #5a32a3; transform: translate(0, -2px); }
         .mensaje-estado { margin-bottom: 16px; font-size: 14px; color: #333; }
         .mensaje-estado.exito { color: #198754; }
         .mensaje-estado.error { color: #d63384; }
@@ -120,6 +122,7 @@
                 <div class="acciones">
                     <button class="btn-guardar" onclick="guardarResultados()" id="btn-guardar">💾 Guardar resultados</button>
                     <button class="btn-descargar" onclick="descargarReporte()">📄 Descargar PDF</button>
+                    <button class="btn-descargar-encuesta" id="btn-descargar-encuesta" onclick="descargarEncuesta()" style="display:none;">📋 Descargar Encuesta</button>
                     <button class="btn-compartir" onclick="compartirResultados()">📤 Compartir</button>
                     <button class="btn-volver-db" id="btn-volver-db" onclick="window.location.href='database.html'" style="display:none;">← Volver a BD</button>
                     <button class="btn-nueva-evaluacion" onclick="nuevaEvaluacion()">🔄 Nueva Evaluación</button>
@@ -134,6 +137,8 @@
         let resultado = null;
         let reporte = null;
         let sesionData = null;
+        let respuestasGuardadas = {};   // respuestas id→valor de la encuesta
+        let estructuraEncuesta = null;  // estructura completa de preguntas
 
         async function inicializarResultados() {
             try {
@@ -164,9 +169,12 @@
                     const registro = JSON.parse(localStorage.getItem('registroSeleccionado'));
                     localStorage.removeItem('registroSeleccionado');
                     await cargarDetalleSeleccionado(registro);
-                    // Mostrar botón volver a BD para admin
+                    // Mostrar botones exclusivos de admin
                     document.getElementById('btn-volver-db').style.display = 'inline-block';
                     document.getElementById('btn-guardar').style.display = 'none';
+                    document.getElementById('btn-descargar-encuesta').style.display = 'inline-block';
+                    // Cargar estructura de preguntas para el botón Descargar Encuesta
+                    cargarEstructuraEncuesta();
                 } else {
                     const evaluacion = localStorage.getItem('ultimaEvaluacion');
                     if (!evaluacion) {
@@ -176,10 +184,17 @@
                     const datosEvaluacion = JSON.parse(evaluacion);
                     resultado = datosEvaluacion.resultado;
                     reporte = datosEvaluacion.reporte;
+                    // Cargar respuestas de la encuesta
+                    respuestasGuardadas = datosEvaluacion.respuestas || {};
                     // Mostrar NIT desde evaluación
                     const nitEval = datosEvaluacion.empresa || (sesionData && (sesionData.nit || sesionData.companyName)) || 'Empresa';
                     document.getElementById('nit-display').textContent = nitEval;
                     mostrarResultados();
+                    // Si es admin también en vista propia, mostrar botón
+                    if (isAdmin) {
+                        document.getElementById('btn-descargar-encuesta').style.display = 'inline-block';
+                        cargarEstructuraEncuesta();
+                    }
                 }
 
                 document.getElementById('loading').style.display = 'none';
@@ -199,7 +214,18 @@
                 const resultadoJsonStr = rawRegistro.resultado_json || rawRegistro['resultado_json'] || '';
                 if (resultadoJsonStr && resultadoJsonStr !== '') {
                     try {
-                        resultado = JSON.parse(resultadoJsonStr);
+                        const jsonCompleto = JSON.parse(resultadoJsonStr);
+                        // resultado_json puede ser el objeto resultado directamente
+                        // o puede ser el objeto evaluacion completo con respuestas
+                        if (jsonCompleto.respuestas) {
+                            // Es la evaluacion completa guardada desde survey.html
+                            resultado = jsonCompleto.resultado || jsonCompleto;
+                            respuestasGuardadas = jsonCompleto.respuestas || {};
+                        } else {
+                            // Es solo el resultado de calculo
+                            resultado = jsonCompleto;
+                            respuestasGuardadas = jsonCompleto.respuestas || {};
+                        }
                         const nit = rawRegistro.empresa || rawRegistro.Empresa || rawRegistro.nit || 'NIT';
                         const madurez = Number(rawRegistro.madurez || rawRegistro['madurez_%'] || 0);
                         resultado.totalPorcentaje = madurez || resultado.totalPorcentaje || 0;
@@ -368,19 +394,35 @@
                 const evalRaw = localStorage.getItem('ultimaEvaluacion');
                 const evalData = evalRaw ? JSON.parse(evalRaw) : {};
 
-                // Usar NIT como identificador
-                const nitEmpresa = evalData.empresa ||
-                    document.getElementById('nit-display').textContent.trim() ||
-                    (sesionData && (sesionData.nit || sesionData.companyName)) || 'NIT-desconocido';
+                // PRIORIDAD: sesionData.nit > evalData.nit > nit-display > evalData.empresa
+                // Nunca usar companyName porque puede ser un nombre de texto, no el NIT
+                const nitEmpresa = (sesionData && sesionData.nit)
+                    || evalData.nit
+                    || document.getElementById('nit-display').textContent.trim()
+                    || evalData.empresa
+                    || 'NIT-desconocido';
+
+                // Validar que tenga formato NIT real (###.###.###-#)
+                const regexNIT = /^\d{3}\.\d{3}\.\d{3}-\d{1}$/;
+                const nitFinal = regexNIT.test(nitEmpresa) ? nitEmpresa : (
+                    (sesionData && sesionData.nit) || nitEmpresa
+                );
 
                 const dimensionesStr = (resultado.dimensiones || [])
                     .map(dim => `${dim.nombreDimension}: ${Number(dim.porcentaje).toFixed(1)}%`)
                     .join('; ');
 
-                const resultadoCompleto = JSON.stringify(resultado);
+                // Incluir respuestas individuales dentro de resultado_json
+                // para que el admin pueda descargar la encuesta completa
+                const respuestasParaGuardar = evalData.respuestas || respuestasGuardadas || {};
+                const evaluacionCompleta = {
+                    ...resultado,
+                    respuestas: respuestasParaGuardar
+                };
+                const resultadoCompleto = JSON.stringify(evaluacionCompleta);
 
                 const payload = {
-                    empresa: nitEmpresa,   // campo 'empresa' en Sheets = NIT
+                    empresa: nitFinal,   // campo 'empresa' en Sheets = NIT
                     fecha: new Date().toISOString(),
                     puntajeTotal: Number(resultado.total) || 0,
                     nivel: resultado.nivelMadurez || '-',
@@ -557,6 +599,372 @@
                 localStorage.removeItem('borrador-encuesta');
                 localStorage.removeItem('evaluacionGuardadaEnBD');
                 window.location.href = 'index.html';
+            }
+        }
+
+        // ===== CARGAR ESTRUCTURA DE PREGUNTAS =====
+        async function cargarEstructuraEncuesta() {
+            try {
+                const resp = await fetch('estructura-encuesta.json');
+                if (resp.ok) {
+                    estructuraEncuesta = await resp.json();
+                    console.log('✅ Estructura de encuesta cargada para descarga');
+                }
+            } catch(e) {
+                console.warn('No se pudo cargar estructura-encuesta.json:', e.message);
+            }
+        }
+
+        // ===== DESCARGAR ENCUESTA COMPLETA EN PDF (SOLO ADMIN) =====
+        function descargarEncuesta() {
+            if (typeof window.jspdf === 'undefined') {
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+                script.onload = () => generarPDFEncuesta();
+                script.onerror = () => mostrarError('No se pudo cargar jsPDF. Verifica tu conexión.');
+                document.head.appendChild(script);
+            } else {
+                generarPDFEncuesta();
+            }
+        }
+
+        function generarPDFEncuesta() {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+                // ── PALETA ──
+                const morado     = [102, 126, 234];
+                const moradoOsc  = [76,  81, 191];
+                const blanco     = [255, 255, 255];
+                const negro      = [30,  30,  30];
+                const grisOsc    = [80,  80,  80];
+                const grisClaro  = [245, 246, 250];
+                const grisBorde  = [220, 220, 230];
+                const verde      = [40,  167, 69];
+                const amarillo   = [255, 193,  7];
+                const naranja    = [253, 126, 20];
+                const rojo       = [220,  53, 69];
+
+                const PW = 210; // page width mm
+                const ML = 14; // margin left
+                const MR = 14; // margin right
+                const CW = PW - ML - MR; // content width
+
+                // ── HELPERS ──
+                const params = new URLSearchParams(window.location.search);
+                const nit    = params.get('nit') || document.getElementById('nit-display').textContent.trim() || 'NIT-desconocido';
+                const usuario = (sesionData && sesionData.userName) || '';
+                const email   = (sesionData && sesionData.email) || '';
+                const fecha   = new Date().toLocaleDateString('es-ES');
+
+                const mapaResp = { 0:'No iniciado', 0.33:'En desarrollo', 0.66:'Implementado', 1:'Optimizado' };
+                function textoResp(v) {
+                    if (v === undefined || v === null) return 'Sin respuesta';
+                    const ops = [0, 0.33, 0.66, 1];
+                    const c = ops.reduce((a, b) => Math.abs(b-v) < Math.abs(a-v) ? b : a);
+                    return mapaResp[c] || 'Sin respuesta';
+                }
+                function colorResp(v) {
+                    const t = textoResp(v);
+                    if (t === 'Optimizado')    return verde;
+                    if (t === 'Implementado')  return morado;
+                    if (t === 'En desarrollo') return amarillo;
+                    return rojo;
+                }
+                function colorPct(p) {
+                    if (p >= 75) return verde;
+                    if (p >= 50) return amarillo;
+                    if (p >= 25) return naranja;
+                    return rojo;
+                }
+                function etiquetaPct(p) {
+                    if (p >= 81) return 'Excelente';
+                    if (p >= 61) return 'Alto';
+                    if (p >= 41) return 'Medio';
+                    if (p >= 21) return 'Bajo';
+                    return 'Critico';
+                }
+
+                // ── CHECK NUEVA PÁGINA ──
+                let y = 0;
+                function checkPage(needed) {
+                    if (y + needed > 278) {
+                        doc.addPage();
+                        // mini header en páginas internas
+                        doc.setFillColor(...morado);
+                        doc.rect(0, 0, PW, 10, 'F');
+                        doc.setTextColor(...blanco);
+                        doc.setFontSize(7); doc.setFont('helvetica', 'normal');
+                        doc.text('EVALUACION DE MADUREZ COMERCIAL  |  EFICACIA', ML, 7);
+                        doc.text(`NIT: ${nit}`, PW - MR, 7, { align: 'right' });
+                        y = 16;
+                    }
+                }
+                function pie() {
+                    const total = doc.internal.getNumberOfPages();
+                    for (let i = 1; i <= total; i++) {
+                        doc.setPage(i);
+                        doc.setFillColor(...morado);
+                        doc.rect(0, 287, PW, 10, 'F');
+                        doc.setTextColor(...blanco);
+                        doc.setFontSize(7); doc.setFont('helvetica', 'normal');
+                        doc.text('Generado por EFICACIA - Evaluacion de Madurez Comercial', ML, 293);
+                        doc.text(`Pagina ${i} de ${total}`, PW - MR, 293, { align: 'right' });
+                    }
+                }
+
+                // ════════════════════════════════
+                // PÁGINA 1 — PORTADA + RESUMEN
+                // ════════════════════════════════
+
+                // Banda superior
+                doc.setFillColor(...morado);
+                doc.rect(0, 0, PW, 52, 'F');
+                // Círculo decorativo
+                doc.setFillColor(...moradoOsc);
+                doc.circle(185, 10, 28, 'F');
+                doc.setFillColor(120, 140, 240);
+                doc.circle(10, 48, 18, 'F');
+
+                doc.setTextColor(...blanco);
+                doc.setFontSize(20); doc.setFont('helvetica', 'bold');
+                doc.text('Evaluacion de Madurez Comercial', ML, 20);
+                doc.setFontSize(11); doc.setFont('helvetica', 'normal');
+                doc.text('Detalle Completo de la Evaluacion', ML, 29);
+                doc.setFontSize(9);
+                doc.text(`NIT: ${nit}`, ML, 38);
+                doc.text(`Fecha: ${fecha}`, ML, 44);
+                if (usuario) doc.text(`Usuario: ${usuario}  |  ${email}`, ML, 50);
+
+                y = 62;
+
+                // ── TARJETA RESUMEN ──
+                if (resultado) {
+                    const puntaje  = resultado.total ? resultado.total.toFixed(2) : '0.00';
+                    const nivel    = resultado.nivelMadurez || '-';
+                    const madurez  = resultado.totalPorcentaje ? resultado.totalPorcentaje.toFixed(1) + '%' : '-';
+                    const desc     = resultado.descripcionNivel || nivel;
+
+                    doc.setFillColor(...grisClaro);
+                    doc.roundedRect(ML, y, CW, 36, 4, 4, 'F');
+                    doc.setDrawColor(...morado);
+                    doc.setLineWidth(0.5);
+                    doc.roundedRect(ML, y, CW, 36, 4, 4, 'S');
+
+                    // Puntaje grande
+                    doc.setTextColor(...morado);
+                    doc.setFontSize(30); doc.setFont('helvetica', 'bold');
+                    doc.text(puntaje, ML + 22, y + 18, { align: 'center' });
+                    doc.setFontSize(9); doc.setFont('helvetica', 'normal');
+                    doc.setTextColor(...grisOsc);
+                    doc.text('/ 5.0 puntos', ML + 22, y + 25, { align: 'center' });
+
+                    // Separador vertical
+                    doc.setDrawColor(...grisBorde);
+                    doc.setLineWidth(0.4);
+                    doc.line(ML + 46, y + 6, ML + 46, y + 30);
+
+                    // Nivel + madurez
+                    doc.setFontSize(14); doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(...negro);
+                    doc.text(nivel, ML + 56, y + 14);
+                    doc.setFontSize(9); doc.setFont('helvetica', 'normal');
+                    doc.setTextColor(...grisOsc);
+                    const descLines = doc.splitTextToSize(desc, 90);
+                    doc.text(descLines, ML + 56, y + 22);
+
+                    // Madurez badge
+                    doc.setFillColor(...morado);
+                    doc.roundedRect(ML + CW - 30, y + 8, 26, 12, 3, 3, 'F');
+                    doc.setTextColor(...blanco);
+                    doc.setFontSize(12); doc.setFont('helvetica', 'bold');
+                    doc.text(madurez, ML + CW - 17, y + 16, { align: 'center' });
+
+                    y += 44;
+                }
+
+                // ── DIMENSIONES ──
+                if (resultado && resultado.dimensiones && resultado.dimensiones.length > 0) {
+                    doc.setFillColor(...morado);
+                    doc.rect(ML, y, CW, 8, 'F');
+                    doc.setTextColor(...blanco);
+                    doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+                    doc.text('RESUMEN POR DIMENSIONES', ML + 3, y + 5.5);
+                    y += 12;
+
+                    resultado.dimensiones.forEach((dim, i) => {
+                        checkPage(20);
+                        const pct = Math.round(dim.porcentaje || 0);
+                        const cb  = colorPct(pct);
+                        const etq = etiquetaPct(pct);
+
+                        doc.setFillColor(i % 2 === 0 ? 255 : 248, i % 2 === 0 ? 255 : 249, i % 2 === 0 ? 255 : 252);
+                        doc.roundedRect(ML, y, CW, 18, 2, 2, 'F');
+                        doc.setDrawColor(...grisBorde);
+                        doc.roundedRect(ML, y, CW, 18, 2, 2, 'S');
+
+                        // Nombre dimensión
+                        doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(...negro);
+                        doc.text(dim.nombreDimension || '-', ML + 3, y + 7);
+
+                        // Badge etiqueta
+                        doc.setFillColor(...cb);
+                        doc.roundedRect(ML + CW - 32, y + 2, 28, 7, 2, 2, 'F');
+                        doc.setTextColor(...blanco);
+                        doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+                        doc.text(`${pct}% ${etq}`, ML + CW - 18, y + 6.5, { align: 'center' });
+
+                        // Barra
+                        doc.setFillColor(220, 220, 220);
+                        doc.roundedRect(ML + 3, y + 11, CW - 38, 3, 1, 1, 'F');
+                        const ancho = Math.max((pct / 100) * (CW - 38), 2);
+                        doc.setFillColor(...cb);
+                        doc.roundedRect(ML + 3, y + 11, ancho, 3, 1, 1, 'F');
+
+                        y += 22;
+                    });
+                }
+
+                // ════════════════════════════════
+                // SECCIÓN RESPUESTAS
+                // ════════════════════════════════
+                checkPage(20);
+                y += 4;
+                doc.setFillColor(...morado);
+                doc.rect(ML, y, CW, 10, 'F');
+                doc.setTextColor(...blanco);
+                doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+                doc.text('DETALLE DE RESPUESTAS POR DIMENSION', ML + 3, y + 7);
+                y += 14;
+
+                const tieneRespuestas = respuestasGuardadas && Object.keys(respuestasGuardadas).length > 0;
+
+                if (!tieneRespuestas) {
+                    checkPage(20);
+                    doc.setFillColor(255, 243, 205);
+                    doc.roundedRect(ML, y, CW, 18, 3, 3, 'F');
+                    doc.setDrawColor(255, 193, 7);
+                    doc.roundedRect(ML, y, CW, 18, 3, 3, 'S');
+                    doc.setTextColor(133, 100, 4);
+                    doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+                    doc.text('Sin respuestas detalladas', ML + 6, y + 8);
+                    doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
+                    doc.text('Este registro fue guardado antes de la actualizacion del sistema.', ML + 6, y + 14);
+                    y += 22;
+                } else if (!estructuraEncuesta) {
+                    // Respuestas sin estructura — mostrar por ID
+                    checkPage(12);
+                    let numQ = 1;
+                    Object.entries(respuestasGuardadas).forEach(([id, valor]) => {
+                        checkPage(14);
+                        const cr = colorResp(valor);
+                        doc.setFillColor(250, 250, 255);
+                        doc.roundedRect(ML, y, CW, 12, 2, 2, 'F');
+                        doc.setTextColor(...negro);
+                        doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+                        doc.text(`P${numQ} (${id})`, ML + 3, y + 5);
+                        doc.setFillColor(...cr);
+                        doc.roundedRect(ML + CW - 38, y + 2, 34, 8, 2, 2, 'F');
+                        doc.setTextColor(...blanco);
+                        doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+                        doc.text(textoResp(valor), ML + CW - 21, y + 7, { align: 'center' });
+                        y += 14;
+                        numQ++;
+                    });
+                } else {
+                    // Respuestas CON estructura — diseño completo
+                    let numGlobal = 1;
+                    const dimColors = [
+                        [102, 126, 234], [118, 75, 162], [56, 178, 172],
+                        [237, 137, 54],  [72, 187, 120]
+                    ];
+
+                    estructuraEncuesta.dimensiones.forEach((dim, idxDim) => {
+                        checkPage(22);
+                        const dc = dimColors[idxDim % dimColors.length];
+
+                        // Header dimensión
+                        doc.setFillColor(...dc);
+                        doc.roundedRect(ML, y, CW, 12, 3, 3, 'F');
+                        doc.setTextColor(...blanco);
+                        doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+                        doc.text(`${idxDim + 1}. ${dim.nombre}`, ML + 4, y + 8);
+                        // Porcentaje dimensión
+                        const dimRes = resultado && resultado.dimensiones
+                            ? resultado.dimensiones.find(d => d.nombreDimension === dim.nombre)
+                            : null;
+                        if (dimRes) {
+                            doc.setFontSize(9);
+                            doc.text(`${dimRes.porcentaje.toFixed(1)}%`, PW - MR, y + 8, { align: 'right' });
+                        }
+                        y += 16;
+
+                        dim.parametros.forEach((param) => {
+                            // Sub-header parámetro
+                            checkPage(10);
+                            doc.setFillColor(235, 238, 255);
+                            doc.roundedRect(ML, y, CW, 7, 1, 1, 'F');
+                            doc.setTextColor(...dc);
+                            doc.setFontSize(7.5); doc.setFont('helvetica', 'bold');
+                            doc.text(param.nombre, ML + 3, y + 5);
+                            y += 9;
+
+                            param.preguntas.forEach((pregunta) => {
+                                const valor = respuestasGuardadas[pregunta.id];
+                                const textoR = textoResp(valor);
+                                const colorR = colorResp(valor);
+
+                                // Calcular altura necesaria para el texto de la pregunta
+                                const textoWrapped = doc.splitTextToSize(pregunta.texto, CW - 46);
+                                const alturaCard = Math.max(18, textoWrapped.length * 4.5 + 10);
+                                checkPage(alturaCard + 4);
+
+                                // Tarjeta pregunta
+                                doc.setFillColor(252, 252, 255);
+                                doc.roundedRect(ML, y, CW, alturaCard, 2, 2, 'F');
+                                doc.setDrawColor(...grisBorde);
+                                doc.setLineWidth(0.3);
+                                doc.roundedRect(ML, y, CW, alturaCard, 2, 2, 'S');
+
+                                // Número pregunta (círculo)
+                                doc.setFillColor(...dc);
+                                doc.circle(ML + 7, y + alturaCard/2, 4.5, 'F');
+                                doc.setTextColor(...blanco);
+                                doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+                                doc.text(String(numGlobal), ML + 7, y + alturaCard/2 + 2.5, { align: 'center' });
+
+                                // Texto pregunta
+                                doc.setTextColor(...negro);
+                                doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+                                doc.text(textoWrapped, ML + 14, y + 7);
+
+                                // Badge respuesta
+                                const badgeW = 36;
+                                doc.setFillColor(...colorR);
+                                doc.roundedRect(ML + CW - badgeW - 2, y + alturaCard - 10, badgeW, 7, 2, 2, 'F');
+                                doc.setTextColor(...blanco);
+                                doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+                                doc.text(textoR, ML + CW - badgeW/2 - 2, y + alturaCard - 5.5, { align: 'center' });
+
+                                y += alturaCard + 3;
+                                numGlobal++;
+                            });
+
+                            y += 3; // espacio entre parámetros
+                        });
+
+                        y += 5; // espacio entre dimensiones
+                    });
+                }
+
+                pie();
+                doc.save(`encuesta-completa-${nit.replace(/[^a-zA-Z0-9]/g, '-')}.pdf`);
+                mostrarExito('✅ PDF de encuesta generado correctamente');
+
+            } catch (err) {
+                console.error(err);
+                mostrarError('Error al generar el PDF: ' + err.message);
             }
         }
 
