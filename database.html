@@ -92,23 +92,57 @@
         }
 
         async function buscarResultados() {
-            const nit = document.getElementById('nit-busqueda').value.trim();
-            mostrarMensaje('Buscando resultados...', '');
-            try {
-                // Buscar por NIT (enviado como parámetro 'empresa' para compatibilidad con el backend)
-                const url = nit ? `${SHEETS_API_URL}?empresa=${encodeURIComponent(nit)}` : SHEETS_API_URL;
-                const response = await fetch(url, { mode: 'cors', cache: 'no-store' });
-                const data = await response.json();
-                if (!response.ok || !data.success) throw new Error(data.error || 'No fue posible consultar los registros.');
-                if (!Array.isArray(data.results) || data.results.length === 0) { mostrarSinDatos(); return; }
-                resultadosActuales = data.results;
-                mostrarMensaje(`Se encontraron ${data.results.length} registro(s).`, 'exito');
-                renderizarTabla(data.results);
-            } catch (error) {
-                mostrarMensaje(`Error: ${error.message}`, 'error');
-                document.getElementById('tabla-resultados-container').innerHTML = '';
-            }
+    const nit = document.getElementById('nit-busqueda').value.trim();
+
+    mostrarMensaje('Buscando resultados...', '');
+
+    try {
+        const response = await fetch(SHEETS_API_URL, { 
+            mode: 'cors', 
+            cache: 'no-store' 
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || 'No fue posible consultar los registros.');
         }
+
+        if (!Array.isArray(data.results) || data.results.length === 0) {
+            mostrarSinDatos();
+            return;
+        }
+
+        // 🔥 FILTRO POR NIT (CLAVE)
+        let resultadosFiltrados = data.results;
+
+        if (nit) {
+            resultadosFiltrados = data.results.filter(item => {
+                // Limpia formato por si hay puntos o guiones
+                const nitGuardado = (item.nit || "").replace(/[^0-9]/g, "");
+                const nitBuscado = nit.replace(/[^0-9]/g, "");
+
+                return nitGuardado.includes(nitBuscado);
+            });
+        }
+
+        if (resultadosFiltrados.length === 0) {
+            mostrarMensaje('No se encontraron resultados para ese NIT.', 'error');
+            mostrarSinDatos();
+            return;
+        }
+
+        resultadosActuales = resultadosFiltrados;
+
+        mostrarMensaje(`Se encontraron ${resultadosFiltrados.length} registro(s).`, 'exito');
+
+        renderizarTabla(resultadosFiltrados);
+
+    } catch (error) {
+        mostrarMensaje(`Error: ${error.message}`, 'error');
+        document.getElementById('tabla-resultados-container').innerHTML = '';
+    }
+}
 
         function parsearDimensiones(dimStr) {
             if (!dimStr) return [];
