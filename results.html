@@ -158,7 +158,7 @@
                     // Mostrar NIT como identificador
                     const nitDisplay = sesionData.nit || sesionData.companyName || 'Empresa';
                     document.getElementById('nit-display').textContent = nitDisplay;
-                    document.getElementById('usuario-email').textContent = sesionData.email || 'Usuario';
+                    document.getElementById('usuario-email').textContent = sesionData.nombre || sesionData.userName || 'Sin nombre';
                 }
 
                 if (registroSeleccionado && localStorage.getItem('registroSeleccionado')) {
@@ -238,6 +238,8 @@
                             }))
                         };
                         document.getElementById('nit-display').textContent = nit;
+                        const nombreReg = rawRegistro.nombre || rawRegistro.Nombre || (sesionData && (sesionData.nombre || sesionData.userName)) || 'Sin nombre';
+                        document.getElementById('usuario-email').textContent = nombreReg;
                         mostrarResultados();
                         mostrarGuardarMensaje('Detalle cargado desde la base de datos.', 'exito');
                         return;
@@ -421,8 +423,11 @@
                 };
                 const resultadoCompleto = JSON.stringify(evaluacionCompleta);
 
+                const nombreGuardado = (sesionData && (sesionData.nombre || sesionData.userName)) || evalData.nombre || 'Sin nombre';
+
                 const payload = {
-                    empresa: nitFinal,   // campo 'empresa' en Sheets = NIT
+                    empresa: nitFinal,          // campo 'empresa' en Sheets = NIT
+                    nombre: nombreGuardado,     // nombre de la persona/empresa
                     fecha: new Date().toISOString(),
                     puntajeTotal: Number(resultado.total) || 0,
                     nivel: resultado.nivelMadurez || '-',

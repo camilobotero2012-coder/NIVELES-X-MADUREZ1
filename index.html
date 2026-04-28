@@ -182,55 +182,9 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="industria">Industria *</label>
-                    <select id="industria" required>
-                        <option value="">Selecciona una industria</option>
-                        <option value="CanalFerretero">🔨 Canal Ferretero</option>
-                        <option value="HomeAppliance">🏠 Home Appliance</option>
-                        <option value="BebidasFermentadas">🍺 Bebidas Fermentadas/Destiladas</option>
-                        <option value="HomeCare">🧹 Home Care</option>
-                        <option value="Pets">🐾 Pet's</option>
-                        <option value="HealthPharma">💊 Health & Pharma</option>
-                        <option value="Retail">🛍️ Retail</option>
-                    </select>
-                    <div class="error-message" id="error-industria"></div>
-                </div>
-
-                <div class="form-group">
-                    <label for="tamano">Tamaño de Empresa</label>
-                    <select id="tamano">
-                        <option value="small">Pequeña (1-50 empleados)</option>
-                        <option value="medium" selected>Mediana (51-250 empleados)</option>
-                        <option value="large">Grande (251-1000 empleados)</option>
-                        <option value="enterprise">Empresa (+1000 empleados)</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="ciudad">Ciudad *</label>
-                    <select id="ciudad" required>
-                        <option value="">Selecciona tu ciudad</option>
-                        <option value="Bogota">🏛️ Bogotá</option>
-                        <option value="Medellin">🏔️ Medellín</option>
-                        <option value="Cali">💃 Cali</option>
-                        <option value="Barranquilla">🌊 Barranquilla</option>
-                        <option value="Cartagena">🏰 Cartagena</option>
-                        <option value="Bucaramanga">⛰️ Bucaramanga</option>
-                        <option value="SantaMarta">🏖️ Santa Marta</option>
-                    </select>
-                    <div class="error-message" id="error-ciudad"></div>
-                </div>
-
-                <div class="form-group">
                     <label for="nombreUsuario">Tu Nombre *</label>
-                    <input type="text" id="nombreUsuario" placeholder="Juan Pérez" required>
+                    <input type="text" id="nombreUsuario" placeholder="Nombre Empresa" required>
                     <div class="error-message" id="error-nombreUsuario"></div>
-                </div>
-
-                <div class="form-group">
-                    <label for="email">Tu Email *</label>
-                    <input type="email" id="email" placeholder="tu@email.com" required>
-                    <div class="error-message" id="error-email"></div>
                 </div>
 
                 <button type="submit" class="btn-submit" id="btnSubmit">Registrar y Comenzar</button>
@@ -323,10 +277,6 @@
         });
 
         // ===== VALIDACIONES =====
-        function validarEmail(email) {
-            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-        }
-
         function validarNIT(nit) {
             const regex = /^\d{3}\.\d{3}\.\d{3}-\d{1}$/;
             return regex.test(nit) && nit.length === 13;
@@ -334,10 +284,7 @@
 
         function validarFormulario() {
             const nit = document.getElementById('nit').value.trim();
-            const industria = document.getElementById('industria').value;
-            const ciudad = document.getElementById('ciudad').value;
             const nombreUsuario = document.getElementById('nombreUsuario').value.trim();
-            const email = document.getElementById('email').value.trim();
 
             let errores = {};
             let valido = true;
@@ -350,22 +297,11 @@
                 valido = false;
             }
 
-            if (!industria) { errores['industria'] = 'Debes seleccionar una industria'; valido = false; }
-            if (!ciudad) { errores['ciudad'] = 'Debes seleccionar una ciudad'; valido = false; }
-
             if (!nombreUsuario) {
                 errores['nombreUsuario'] = 'Tu nombre es requerido';
                 valido = false;
             } else if (nombreUsuario.length < 3) {
                 errores['nombreUsuario'] = 'Mínimo 3 caracteres';
-                valido = false;
-            }
-
-            if (!email) {
-                errores['email'] = 'El email es requerido';
-                valido = false;
-            } else if (!validarEmail(email)) {
-                errores['email'] = 'Email inválido';
                 valido = false;
             }
 
@@ -401,18 +337,7 @@
             }
 
             const nit = document.getElementById('nit').value.trim();
-            const datos = {
-                company: {
-                    nit: nit,
-                    industry: document.getElementById('industria').value,
-                    size: document.getElementById('tamano').value,
-                    city: document.getElementById('ciudad').value
-                },
-                user: {
-                    name: document.getElementById('nombreUsuario').value.trim(),
-                    email: document.getElementById('email').value.trim()
-                }
-            };
+            const nombre = document.getElementById('nombreUsuario').value.trim();
 
             const btnSubmit = document.getElementById('btnSubmit');
             btnSubmit.disabled = true;
@@ -421,28 +346,20 @@
             try {
                 await new Promise(resolve => setTimeout(resolve, 1200));
 
-                const resultado = {
-                    success: true,
-                    company: { id: 'company-' + Math.random().toString(36).substr(2, 9), ...datos.company },
-                    user: { id: 'user-' + Math.random().toString(36).substr(2, 9), ...datos.user }
-                };
-
+                // Estructura principal: NIT como identificador + nombre asociado
                 const sesion = {
                     isAuthenticated: true,
-                    companyId: resultado.company.id,
-                    userId: resultado.user.id,
-                    nit: resultado.company.nit,
-                    companyName: resultado.company.nit, // alias para compatibilidad
-                    userName: resultado.user.name,
-                    email: resultado.user.email,
-                    industry: resultado.company.industry,
-                    city: resultado.company.city,
-                    companySize: resultado.company.size,
+                    nit: nit,
+                    nombre: nombre,
+                    // Aliases para compatibilidad con survey.html y results.html
+                    companyName: nit,
+                    userName: nombre,
                     registeredAt: new Date().toISOString()
                 };
 
                 localStorage.setItem('sesionActiva', JSON.stringify(sesion));
-                mostrarMensaje('✅ ¡Bienvenido ' + datos.user.name + '! Iniciando encuesta...', 'success');
+                console.log('✅ Sesión guardada:', { nit, nombre });
+                mostrarMensaje('✅ ¡Bienvenido ' + nombre + '! Iniciando encuesta...', 'success');
 
                 setTimeout(() => { window.location.href = 'survey.html'; }, 1500);
 

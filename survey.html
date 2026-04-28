@@ -117,7 +117,7 @@
                 // Mostrar NIT como identificador
                 const nitDisplay = sesionData.nit || sesionData.companyName || 'Empresa';
                 document.getElementById('nit-display').textContent = nitDisplay;
-                document.getElementById('usuario-email').textContent = sesionData.email || 'Usuario';
+                document.getElementById('usuario-email').textContent = sesionData.nombre || sesionData.userName || 'Sin nombre';
                 return true;
             } catch (e) {
                 window.location.href = 'index.html';
