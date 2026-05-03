@@ -487,6 +487,7 @@
                 const nit = document.getElementById('nit-display').textContent.trim() || (sesionData && (sesionData.nit || sesionData.companyName)) || 'NIT';
                 const usuario = (sesionData && sesionData.userName) || '';
                 const email = (sesionData && sesionData.email) || '';
+                const direccion = (sesionData && sesionData.direccion) || '';
                 const fecha = new Date().toLocaleDateString('es-ES');
                 const puntaje = resultado?.total?.toFixed(2) || '0.00';
                 const porcentaje = resultado?.totalPorcentaje?.toFixed(1) || '0.0';
@@ -497,7 +498,7 @@
                 const morado = [102, 126, 234], blanco = [255, 255, 255], grisClaro = [248, 249, 250], grisTexto = [100, 100, 100], negro = [30, 30, 30];
 
                 doc.setFillColor(...morado);
-                doc.rect(0, 0, 210, 45, 'F');
+                doc.rect(0, 0, 210, 52, 'F');
                 doc.setTextColor(...blanco);
                 doc.setFontSize(18);
                 doc.setFont('helvetica', 'bold');
@@ -507,8 +508,9 @@
                 doc.text(`NIT: ${nit}`, 15, 27);
                 doc.text(`Fecha: ${fecha}`, 15, 35);
                 if (usuario) doc.text(`Usuario: ${usuario}  |  ${email}`, 15, 43);
+                if (direccion) doc.text(`Direccion: ${direccion}`, 15, 50);
 
-                let y = 58;
+                let y = 62;
                 doc.setFillColor(...grisClaro);
                 doc.roundedRect(15, y, 180, 38, 4, 4, 'F');
                 doc.setTextColor(...morado);
@@ -661,6 +663,7 @@
                 const nit    = params.get('nit') || document.getElementById('nit-display').textContent.trim() || 'NIT-desconocido';
                 const usuario = (sesionData && sesionData.userName) || '';
                 const email   = (sesionData && sesionData.email) || '';
+                const direccion = (sesionData && sesionData.direccion) || '';
                 const fecha   = new Date().toLocaleDateString('es-ES');
 
                 const mapaResp = { 0:'No iniciado', 0.33:'En desarrollo', 0.66:'Implementado', 1:'Optimizado' };
@@ -741,6 +744,7 @@
                 doc.text(`NIT: ${nit}`, ML, 38);
                 doc.text(`Fecha: ${fecha}`, ML, 44);
                 if (usuario) doc.text(`Usuario: ${usuario}  |  ${email}`, ML, 50);
+                if (direccion) doc.text(`Direccion: ${direccion}`, ML, 56);
 
                 y = 62;
 
