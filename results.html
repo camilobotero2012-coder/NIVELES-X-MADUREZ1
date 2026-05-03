@@ -424,10 +424,12 @@
                 const resultadoCompleto = JSON.stringify(evaluacionCompleta);
 
                 const nombreGuardado = (sesionData && (sesionData.nombre || sesionData.userName)) || evalData.nombre || 'Sin nombre';
+                const direccionGuardada = (sesionData && sesionData.direccion) || evalData.direccion || 'Sin dirección';
 
                 const payload = {
-                    empresa: nitFinal,          // campo 'empresa' en Sheets = NIT
-                    nombre: nombreGuardado,     // nombre de la persona/empresa
+                    empresa: nitFinal,              // campo 'empresa' en Sheets = NIT
+                    nombre: nombreGuardado,         // nombre de la persona/empresa
+                    direccion: direccionGuardada,   // dirección vinculada al NIT
                     fecha: new Date().toISOString(),
                     puntajeTotal: Number(resultado.total) || 0,
                     nivel: resultado.nivelMadurez || '-',
@@ -507,8 +509,7 @@
                 doc.setFont('helvetica', 'normal');
                 doc.text(`NIT: ${nit}`, 15, 27);
                 doc.text(`Fecha: ${fecha}`, 15, 35);
-                if (usuario) doc.text(`Usuario: ${usuario}  |  ${email}`, 15, 43);
-                if (direccion) doc.text(`Direccion: ${direccion}`, 15, 50);
+                if (usuario) doc.text(`Usuario: ${usuario}  |  Dir: ${direccion}`, 15, 43);
 
                 let y = 62;
                 doc.setFillColor(...grisClaro);
@@ -743,8 +744,7 @@
                 doc.setFontSize(9);
                 doc.text(`NIT: ${nit}`, ML, 38);
                 doc.text(`Fecha: ${fecha}`, ML, 44);
-                if (usuario) doc.text(`Usuario: ${usuario}  |  ${email}`, ML, 50);
-                if (direccion) doc.text(`Direccion: ${direccion}`, ML, 56);
+                if (usuario) doc.text(`Usuario: ${usuario}  |  Dir: ${direccion}`, ML, 50);
 
                 y = 62;
 
