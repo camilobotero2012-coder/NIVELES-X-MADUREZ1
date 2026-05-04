@@ -62,7 +62,7 @@
     </div>
 
     <script>
-        const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbzwIG1w8c79MAO0gM_m0D0uFpbKD3GVpLu2ygP1sHEGPSRb9DJmX2xsx4W6bYcGMXDB/exec';
+        const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbzHuQ43erNo6P_T2vCCiNYD91KhpAqOb-hAWM6AorEelnz4Xhb1GwlWq1sAx8hxO0TA/exec';
         let resultadosActuales = [];
 
         // ===== PROTECCIÓN: solo admin =====
@@ -168,14 +168,16 @@
         }
 
         function colorNivel(nivel) {
-            const n = (nivel || '').toLowerCase();
-            if (n.includes('excelencia')) return '#28a745';
-            if (n.includes('estratégico') || n.includes('estrategico')) return '#17a2b8';
-            if (n.includes('estructurado')) return '#667eea';
-            if (n.includes('táctico') || n.includes('tactico')) return '#ffc107';
-            if (n.includes('operativo')) return '#fd7e14';
-            return '#dc3545';
-        }
+    const n = String(nivel || '').toLowerCase();
+
+    if (n.includes('excelencia')) return '#28a745';
+    if (n.includes('estratégico') || n.includes('estrategico')) return '#17a2b8';
+    if (n.includes('estructurado')) return '#667eea';
+    if (n.includes('táctico') || n.includes('tactico')) return '#ffc107';
+    if (n.includes('operativo')) return '#fd7e14';
+
+    return '#dc3545';
+}
 
         function colorBarra(pct) {
             if (pct >= 75) return '#28a745';
