@@ -3,7 +3,6 @@
   "version": "2.0",
   "descripcion": "Sistema de evaluación de madurez comercial con 26 preguntas distribuidas en 5 dimensiones y 13 parámetros",
   "puntajeMaxTotal": 5,
-
   "dimensiones": [
     {
       "id": "estrategia",
@@ -20,12 +19,17 @@
             {
               "id": "Q1",
               "texto": "¿Dónde está hoy la mayor oportunidad de crecimiento del negocio y qué lo está limitando?",
-              "puntosMax": 0.25
+              "puntosMax": 0.166667
             },
             {
               "id": "Q2",
               "texto": "¿Dónde ve la mayor oportunidad de crecimiento que hoy no están capturando?",
-              "puntosMax": 0.25
+              "puntosMax": 0.166667
+            },
+            {
+              "id": "Q27",
+              "texto": "Seamos honestos sobre el portafolio: ¿Qué producto nuestro está ocupando espacio 'muerto' en la percha y qué producto/formato nos está haciendo mucha falta para pelear de verdad contra el líder?",
+              "puntosMax": 0.166666
             }
           ]
         },
@@ -75,7 +79,6 @@
         }
       ]
     },
-
     {
       "id": "operacional",
       "nombre": "Operacional",
@@ -113,12 +116,17 @@
             {
               "id": "Q12",
               "texto": "¿En qué momento Trade entra en la planeación comercial y qué rol juega realmente?",
-              "puntosMax": 0.15
+              "puntosMax": 0.1
             },
             {
               "id": "Q13",
               "texto": "¿Qué rol juega Trade en la implementación de la estrategia de marketing?",
-              "puntosMax": 0.15
+              "puntosMax": 0.1
+            },
+            {
+              "id": "Q28",
+              "texto": "Si hoy lo nombraran Gerente de la marca y pudiera cambiar una sola cosa de nuestras promociones, precios o exhibiciones, ¿qué cambiaría mañana mismo para vaciar el inventario más rápido?",
+              "puntosMax": 0.1
             }
           ]
         },
@@ -130,23 +138,32 @@
             {
               "id": "Q14",
               "texto": "¿Dónde siente hoy las mayores fricciones entre ventas, ejecución y canal?",
-              "puntosMax": 0.1
+              "puntosMax": 0.06
             },
             {
               "id": "Q15",
               "texto": "¿Dónde se le cae más el resultado: en la planeación o en la ejecución?",
-              "puntosMax": 0.1
+              "puntosMax": 0.06
             },
             {
               "id": "Q16",
               "texto": "¿Qué tanto la ejecución en PDV impacta sus resultados comerciales?",
-              "puntosMax": 0.1
+              "puntosMax": 0.06
+            },
+            {
+              "id": "Q29",
+              "texto": "De todas las instrucciones y tareas que le pedimos desde la oficina, ¿cuál siente que es una pérdida de tiempo que no le ayuda en nada a vender más o ganarle a la competencia?",
+              "puntosMax": 0.06
+            },
+            {
+              "id": "Q30",
+              "texto": "En el día a día, ¿cuál es la mayor traba o excusa que le pone el jefe de piso (o gerente del supermercado) para no dejarlo ejecutar bien nuestro producto o darnos exhibiciones adicionales?",
+              "puntosMax": 0.06
             }
           ]
         }
       ]
     },
-
     {
       "id": "tecnologia",
       "nombre": "Tecnología",
@@ -196,18 +213,22 @@
             {
               "id": "Q21",
               "texto": "¿Qué información tienen hoy sobre el comportamiento del shopper en el punto de venta?",
-              "puntosMax": 0.15
+              "puntosMax": 0.1
             },
             {
               "id": "Q22",
               "texto": "¿Dónde siente que se pierde la conexión entre la estrategia de marketing y lo que realmente vive el shopper en el PDV?",
-              "puntosMax": 0.15
+              "puntosMax": 0.1
+            },
+            {
+              "id": "Q31",
+              "texto": "Cuando el comprador (shopper) está frente a la góndola, mira nuestro producto y al final se lleva el de la competencia, ¿cuál es la verdadera razón que usted está viendo y que nosotros no vemos en nuestros reportes?",
+              "puntosMax": 0.1
             }
           ]
         }
       ]
     },
-
     {
       "id": "personas",
       "nombre": "Gestión de Personas",
@@ -241,7 +262,6 @@
         }
       ]
     },
-
     {
       "id": "resultados",
       "nombre": "Resultados",
